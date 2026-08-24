@@ -1,0 +1,82 @@
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<nav class="chrome" id="chrome">
+  <button class="ch-btn" id="langBtn" type="button" aria-label="Switch language">عربي</button>
+</nav>
+
+<button class="skip" id="skipBtn" type="button">SKIP</button>
+
+<main class="stages">
+
+  <!-- ░░ stage 1 — the invitation ░░ -->
+  <section class="stage" id="stInvite" aria-label="Invitation">
+    <div class="wrap">
+      <svg class="mark" id="mark" viewBox="0 0 452.021 153.052" role="img" aria-label="Jayasom AMAALA">
+        <g class="skeleton" id="skeleton"></g>
+        <g class="realmark" id="realmark">__LOGO_PATHS__</g>
+      </svg>
+
+      <h1 class="hero" id="heroEn"></h1>
+      <p class="hero-ar" id="heroAr"></p>
+
+      <div class="rule rv" id="rule1" aria-hidden="true"></div>
+
+      <p class="verse" id="verse"></p>
+
+      <div class="details" id="details">
+        <p class="detail key" id="dDate"></p>
+        <p class="detail" id="dPlace"></p>
+        <p class="detail dress"><span class="d-lab" id="dDressLab"></span><span id="dDress"></span></p>
+      </div>
+
+      <div class="countdown rv" id="countdown" aria-live="off">
+        <div class="cd-unit"><span class="cd-num" id="cdD">—</span><span class="cd-lab" id="cdDL"></span></div>
+        <span class="cd-dot" aria-hidden="true"></span>
+        <div class="cd-unit"><span class="cd-num" id="cdH">—</span><span class="cd-lab" id="cdHL"></span></div>
+        <span class="cd-dot" aria-hidden="true"></span>
+        <div class="cd-unit"><span class="cd-num" id="cdM">—</span><span class="cd-lab" id="cdML"></span></div>
+      </div>
+
+      <p class="note" id="rsvpBy"></p>
+
+      <button class="cta rv" id="beginBtn" type="button"></button>
+    </div>
+  </section>
+
+  <!-- ░░ stage 2 — the rsvp ░░ -->
+  <section class="stage" id="stForm" aria-label="Confirm your attendance">
+    <div class="wrap">
+      <svg class="progress" id="progress" viewBox="0 0 204 84" aria-hidden="true"></svg>
+
+      <form class="field" id="form" novalidate>
+        <label class="f-label" id="fLabel" for="fInput"></label>
+
+        <input class="f-input" id="fInput" type="text" autocomplete="name"
+               autocapitalize="words" spellcheck="false" />
+
+        <div class="choices" id="fChoices" hidden></div>
+
+        <p class="f-err" id="fErr" role="alert"></p>
+
+        <div class="f-nav">
+          <button class="f-back" id="fBack" type="button" hidden></button>
+          <button class="cta" id="fNext" type="submit" style="margin-top:0"></button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ░░ stage 3 — the closing ░░ -->
+  <section class="stage" id="stDone" aria-label="Confirmed">
+    <div class="wrap">
+      <svg class="final-mark" id="finalMark" viewBox="0 0 204 84" aria-hidden="true"></svg>
+      <h2 class="hero rv" id="doneEn"></h2>
+      <p class="hero-ar rv" id="doneAr"></p>
+      <div class="rule rv" id="doneRule" aria-hidden="true"></div>
+      <p class="verse rv" id="doneVerse"></p>
+      <button class="cta rv" id="calBtn" type="button"></button>
+    </div>
+  </section>
+
+</main>

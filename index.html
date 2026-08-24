@@ -1,0 +1,1259 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070A10">
+<meta name="description" content="A New Constellation Begins — an evening at Jayasom, AMAALA. Sunday 13 September.">
+<meta property="og:title" content="Jayasom · AMAALA">
+<meta property="og:description" content="A New Constellation Begins — كوكبة جديدة تبدأ بالتألّق">
+<meta property="og:type" content="website">
+<title>Jayasom Constellation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Questrial&family=Alexandria:wght@200;300;400&display=swap');
+
+:root{
+  --night-0:#070A10;
+  --ivory:#F6EDE7;
+  --white:#FFFFFF;
+  --sand:#CDA788;
+  --star:#ECC681;
+
+  --fs-hero:clamp(1.28rem,4.9vw,2.3rem);
+  --fs-ar-hero:clamp(1rem,3.9vw,1.62rem);
+  --fs-body:clamp(0.92rem,3.3vw,1.08rem);
+  --fs-detail:clamp(0.78rem,2.8vw,0.93rem);
+  --fs-label:clamp(0.58rem,2.1vw,0.67rem);
+  --ls-hero:clamp(.18em,1.2vw,.30em);
+
+  --ease:cubic-bezier(.19,1,.22,1);
+  --ease-soft:cubic-bezier(.4,0,.2,1);
+
+  --lat:'Century Gothic','Questrial','Futura','Avenir Next',-apple-system,sans-serif;
+  --ar:'Alexandria','Century Gothic',sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+body{
+  background:var(--night-0);
+  color:var(--ivory);
+  font-family:var(--lat);
+  font-weight:400;
+  min-height:100svh;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ---------- sky ---------- */
+#sky{
+  position:fixed;inset:0;width:100%;height:100%;
+  display:block;z-index:0;
+  opacity:0;transition:opacity 2.4s var(--ease-soft);
+  background:
+    radial-gradient(150% 92% at 50% 6%, #16202F 0%, #0C121C 42%, #070A10 78%),
+    var(--night-0);
+}
+#sky.lit{opacity:1}
+
+.vignette{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 78% at 50% 42%, transparent 38%, rgba(4,6,10,.55) 82%, rgba(3,4,8,.86) 100%);
+}
+
+/* ---------- stage system ----------
+   Each stage owns the whole viewport and scrolls inside itself, so a stage
+   that outgrows a short phone screen stays reachable instead of being clipped.
+   margin:auto on the inner wrapper centres short content without the
+   flex-centring overflow bug (which would cut off the top). */
+.stages{position:fixed;inset:0;z-index:3}
+.stage{
+  position:absolute;inset:0;
+  display:flex;
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  opacity:0;visibility:hidden;
+  transition:opacity .95s var(--ease-soft), transform 1.1s var(--ease), visibility 0s linear .95s;
+  pointer-events:none;
+  transform:translateY(10px);
+}
+.stage::-webkit-scrollbar{width:0;height:0}
+.stage{scrollbar-width:none}
+.stage.on{opacity:1;visibility:visible;transform:none;pointer-events:auto;transition-delay:0s}
+.stage.out{transform:translateY(-16px)}
+.wrap{
+  margin:auto;
+  width:100%;max-width:42rem;
+  padding:clamp(1.8rem,4.4svh,2.5rem) 1.5rem clamp(1.6rem,3.8svh,2.2rem);
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;
+}
+
+/* ---------- constellation / logo ---------- */
+.mark{
+  width:min(76vw,29rem);
+  margin-bottom:clamp(1rem,3.2svh,1.6rem);
+  overflow:visible;
+  transform-origin:50% 50%;
+}
+.sk-line{
+  fill:none;stroke:var(--ivory);stroke-width:.55;
+  stroke-linecap:round;opacity:.72;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+  transition:stroke-dashoffset .68s var(--ease-soft), opacity .9s ease;
+}
+.sk-line.drawn{stroke-dashoffset:0}
+.sk-halo{fill:var(--star);opacity:0;transition:opacity .8s ease}
+.sk-core{fill:var(--white);opacity:0;transition:opacity .55s ease}
+.sk-node.lit .sk-halo{opacity:.17}
+.sk-node.lit .sk-core{opacity:.95}
+.skeleton{opacity:1;transition:opacity 1.15s var(--ease-soft)}
+.skeleton.faded{opacity:.2}
+.mk-jayasom{fill:var(--ivory)}
+.mk-amaala{fill:var(--sand)}
+.realmark{opacity:0;transition:opacity 1.25s var(--ease-soft)}
+.realmark.shown{opacity:1}
+
+/* ---------- reveal items ---------- */
+.rv{opacity:0;transform:translateY(14px);
+  transition:opacity 1.05s var(--ease-soft), transform 1.15s var(--ease)}
+.rv.in{opacity:1;transform:none}
+
+/* every word arrives on its own — the opening is read, not displayed */
+.w{
+  display:inline-block;
+  opacity:0;transform:translateY(.5em);
+  transition:opacity 1.15s var(--ease-soft), transform 1.25s var(--ease);
+}
+.w.in{opacity:1;transform:none}
+
+/* ---------- typography ---------- */
+.hero{
+  font-size:var(--fs-hero);
+  font-weight:400;
+  letter-spacing:var(--ls-hero);
+  text-transform:uppercase;
+  line-height:1.42;
+  text-indent:var(--ls-hero);
+  color:var(--ivory);
+}
+.hero-ar{
+  font-family:var(--ar);
+  font-size:var(--fs-ar-hero);
+  font-weight:200;
+  line-height:1.8;
+  color:var(--sand);
+  margin-top:.78rem;
+  direction:rtl;
+}
+[dir="rtl"] .hero{
+  font-family:var(--ar);
+  letter-spacing:0;text-indent:0;text-transform:none;
+  font-weight:200;
+  font-size:var(--fs-ar-hero);
+  color:var(--ivory);
+}
+[dir="rtl"] .hero-ar{
+  font-family:var(--lat);
+  direction:ltr;
+  letter-spacing:.28em;text-indent:.28em;text-transform:uppercase;
+  font-size:clamp(.72rem,2.6vw,.86rem);
+  font-weight:400;
+}
+
+/* When / where / what to wear are one family — the dress code is named,
+   not shrunk, and uses the same middot separator as the lines above it. */
+.detail.dress{
+  display:flex;flex-direction:column;align-items:center;
+  gap:.3rem;
+  margin-top:.5rem;
+}
+.d-lab{color:var(--sand)}
+
+.rule{
+  width:1px;height:clamp(1.1rem,2.4svh,1.5rem);
+  background:linear-gradient(to bottom,transparent,rgba(205,167,136,.5),transparent);
+  margin:clamp(.8rem,2.2svh,1.15rem) 0;
+}
+
+.verse{
+  font-size:var(--fs-body);
+  font-weight:400;
+  line-height:1.95;
+  letter-spacing:.055em;
+  color:rgba(246,237,231,.9);
+  max-width:26rem;
+}
+[dir="rtl"] .verse{font-family:var(--ar);font-weight:200;letter-spacing:0;line-height:2.2}
+
+.details{
+  margin-top:clamp(1.1rem,3.2svh,1.6rem);
+  display:flex;flex-direction:column;gap:.55rem;
+}
+.detail{
+  font-size:var(--fs-detail);
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:rgba(246,237,231,.72);
+  font-weight:400;
+}
+.detail.key{color:var(--ivory);letter-spacing:.24em}
+[dir="rtl"] .detail{font-family:var(--ar);letter-spacing:0;text-transform:none;font-weight:200;font-size:var(--fs-body)}
+
+.note{
+  margin-top:.95rem;
+  font-size:var(--fs-label);
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  color:rgba(205,167,136,.84);
+}
+[dir="rtl"] .note{font-family:var(--ar);letter-spacing:0;text-transform:none;font-size:var(--fs-detail);font-weight:200}
+
+/* ---------- countdown ---------- */
+.countdown{
+  margin-top:clamp(1.1rem,3.2svh,1.6rem);
+  display:flex;align-items:flex-end;gap:clamp(1.1rem,4.6vw,1.8rem);
+}
+.cd-unit{display:flex;flex-direction:column;align-items:center;gap:.42rem}
+.cd-num{
+  font-size:clamp(1.02rem,3.7vw,1.24rem);
+  letter-spacing:.14em;
+  color:var(--star);
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 0 14px rgba(236,198,129,.34);
+}
+.cd-lab{
+  font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(246,237,231,.6);
+}
+[dir="rtl"] .cd-lab{font-family:var(--ar);letter-spacing:0;text-transform:none;font-size:.66rem}
+.cd-dot{width:2px;height:2px;border-radius:50%;background:rgba(205,167,136,.4);margin-bottom:1.1rem}
+
+/* ---------- button ---------- */
+.cta{
+  margin-top:clamp(1.2rem,3.6svh,1.8rem);
+  position:relative;
+  background:none;border:0;
+  color:var(--ivory);
+  font-family:inherit;
+  font-size:var(--fs-detail);
+  letter-spacing:.32em;text-transform:uppercase;
+  text-indent:.32em;
+  padding:1.05rem 0 .95rem;
+  cursor:pointer;
+  transition:color .5s ease, letter-spacing .7s var(--ease);
+}
+[dir="rtl"] .cta{font-family:var(--ar);letter-spacing:0;text-indent:0;text-transform:none;font-weight:300;font-size:var(--fs-body)}
+.cta::after{
+  content:'';position:absolute;left:50%;bottom:0;
+  width:100%;height:1px;transform:translateX(-50%) scaleX(.42);
+  background:linear-gradient(to right,transparent,var(--sand),transparent);
+  transition:transform .8s var(--ease),opacity .5s ease;
+  opacity:.62;
+}
+.cta:hover,.cta:focus-visible{color:var(--white);letter-spacing:.38em}
+[dir="rtl"] .cta:hover,[dir="rtl"] .cta:focus-visible{letter-spacing:.02em}
+.cta:hover::after,.cta:focus-visible::after{transform:translateX(-50%) scaleX(1);opacity:1}
+.cta:focus-visible{outline:1px solid rgba(236,198,129,.55);outline-offset:12px;border-radius:2px}
+
+/* ---------- form ---------- */
+.progress{margin-bottom:clamp(1.9rem,6svh,2.9rem);width:clamp(9rem,34vw,12rem);overflow:visible}
+.pg-link{fill:none;stroke:var(--star);stroke-width:1;opacity:0;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+  transition:stroke-dashoffset 1.05s var(--ease-soft),opacity .7s ease}
+.pg-link.drawn{opacity:.5;stroke-dashoffset:0}
+.pg-halo{fill:var(--star);opacity:.04;transition:opacity .9s ease}
+.pg-core{fill:rgba(246,237,231,.3);transition:fill .8s ease}
+.pg-node.lit .pg-halo{opacity:.2}
+.pg-node.lit .pg-core{fill:var(--white)}
+
+@keyframes stepIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.field.enter .f-label,
+.field.enter .f-input,
+.field.enter .choices{animation:stepIn .7s var(--ease) both}
+.field.enter .f-input{animation-delay:.09s}
+.field.enter .choices{animation-delay:.14s}
+
+.field{width:100%;max-width:min(17.5rem,80vw);display:flex;flex-direction:column;align-items:center}
+.f-label{
+  font-size:var(--fs-label);
+  letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(205,167,136,.8);
+  margin-bottom:1.5rem;
+}
+[dir="rtl"] .f-label{font-family:var(--ar);letter-spacing:0;text-transform:none;font-size:var(--fs-detail);font-weight:200}
+.f-input{
+  width:100%;
+  background:none;border:0;border-bottom:1px solid rgba(246,237,231,.16);
+  color:var(--ivory);
+  font-family:inherit;
+  font-size:clamp(1.02rem,4vw,1.22rem);
+  letter-spacing:.08em;
+  text-align:center;
+  padding:.72rem .3rem .95rem;
+  transition:border-color .6s ease;
+}
+[dir="rtl"] .f-input{font-family:var(--ar);letter-spacing:0;font-weight:200}
+.f-input::placeholder{color:rgba(246,237,231,.2);letter-spacing:.12em}
+.f-input:focus{outline:none;border-bottom-color:rgba(236,198,129,.62)}
+.f-input:-webkit-autofill{-webkit-text-fill-color:var(--ivory);transition:background-color 9999s}
+
+.f-err{
+  min-height:1.3rem;margin-top:.85rem;
+  font-size:var(--fs-label);letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(240,160,136,.9);
+  opacity:0;transition:opacity .4s ease;
+}
+[dir="rtl"] .f-err{font-family:var(--ar);letter-spacing:0;text-transform:none;font-size:var(--fs-detail)}
+.f-err.show{opacity:1}
+
+.choices{display:flex;flex-direction:column;gap:.9rem;width:100%;max-width:22rem;margin-top:.4rem}
+.choice{
+  background:none;border:1px solid rgba(246,237,231,.14);
+  color:rgba(246,237,231,.86);
+  font-family:inherit;
+  font-size:var(--fs-detail);
+  letter-spacing:.2em;text-transform:uppercase;text-indent:.2em;
+  padding:1.05rem 1.2rem;
+  cursor:pointer;
+  transition:border-color .5s ease,color .5s ease,background-color .5s ease,transform .5s var(--ease);
+}
+[dir="rtl"] .choice{font-family:var(--ar);letter-spacing:0;text-indent:0;text-transform:none;font-weight:200;font-size:var(--fs-body)}
+.choice:hover,.choice:focus-visible{
+  border-color:rgba(236,198,129,.5);color:var(--white);
+  background:rgba(236,198,129,.05);transform:translateY(-2px);outline:none;
+}
+.choice:focus-visible{outline:1px solid rgba(236,198,129,.5);outline-offset:4px}
+
+/* three columns so the primary action stays optically centred
+   whether or not Back is present */
+.f-nav{
+  margin-top:1.7rem;width:100%;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+}
+.f-nav>*{min-width:0}
+.f-nav .f-back{grid-column:1;justify-self:end;margin-right:1.4rem}
+/* on the choice step there is no Continue, so Back takes the centre */
+.f-nav.solo .f-back{grid-column:2;justify-self:center;margin-right:0}
+.f-nav .cta{grid-column:2}
+.f-back{
+  background:none;border:0;cursor:pointer;
+  color:rgba(246,237,231,.34);
+  font-family:inherit;font-size:var(--fs-label);
+  letter-spacing:.24em;text-transform:uppercase;
+  padding:.6rem .2rem;
+  transition:color .45s ease;
+}
+[dir="rtl"] .f-back{font-family:var(--ar);letter-spacing:0;text-transform:none;font-size:var(--fs-detail)}
+.f-back:hover,.f-back:focus-visible{color:rgba(246,237,231,.75);outline:none}
+.f-back[hidden]{display:none}
+
+/* ---------- closing ---------- */
+.final-mark{width:min(56vw,15rem);margin-bottom:clamp(1.4rem,4.6svh,2.2rem);overflow:visible}
+
+/* ---------- chrome ---------- */
+.chrome{
+  position:fixed;z-index:6;
+  display:flex;align-items:center;gap:1.15rem;
+  top:max(1.05rem,env(safe-area-inset-top));
+  right:max(1.15rem,env(safe-area-inset-right));
+  opacity:0;transition:opacity 1.4s var(--ease-soft) .4s;
+}
+.chrome.in{opacity:1}
+[dir="rtl"] .chrome{right:auto;left:max(1.15rem,env(safe-area-inset-left));flex-direction:row-reverse}
+[dir="rtl"] .skip{font-family:var(--ar);letter-spacing:0;text-transform:none;font-size:.72rem}
+.skip{
+  position:fixed;z-index:6;
+  bottom:max(1.5rem,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+  background:none;border:0;cursor:pointer;
+  color:rgba(246,237,231,.46);
+  font-family:var(--lat);
+  font-size:.63rem;letter-spacing:.3em;text-transform:uppercase;
+  padding:.95rem 1.2rem;min-height:44px;
+  opacity:0;transition:opacity 1s ease,color .4s ease;
+}
+.skip.in{opacity:1}
+.skip:hover,.skip:focus-visible{color:rgba(246,237,231,.72);outline:none}
+
+.cursor-off{cursor:none}
+
+/* short screens: drop the ornament before crowding the words */
+@media (max-height:720px){
+  .rule{display:none}
+  .verse{line-height:1.8}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
+</style>
+
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<nav class="chrome" id="chrome"></nav>
+
+<button class="skip" id="skipBtn" type="button">SKIP</button>
+
+<main class="stages">
+
+  <!-- ░░ stage 1 — the invitation ░░ -->
+  <section class="stage" id="stInvite" aria-label="Invitation">
+    <div class="wrap">
+      <svg class="mark" id="mark" viewBox="0 0 452.021 153.052" role="img" aria-label="Jayasom AMAALA">
+        <g class="skeleton" id="skeleton"></g>
+        <g class="realmark" id="realmark"><path class="mk-amaala" fill-rule="nonzero" d="M 277.910156 115.15625 L 276.289062 119.230469 L 279.574219 119.230469 Z M 276.757812 110.628906 L 279.066406 110.628906 L 284.699219 124.453125 L 281.699219 124.453125 L 280.59375 121.738281 L 275.289062 121.738281 L 274.203125 124.453125 L 271.21875 124.453125 Z M 256 110.628906 L 258.960938 110.628906 L 258.960938 121.472656 L 263.035156 121.472656 L 263.035156 124.453125 L 256 124.453125 Z M 240.242188 115.15625 L 238.617188 119.230469 L 241.902344 119.230469 Z M 239.085938 110.628906 L 241.394531 110.628906 L 247.027344 124.453125 L 244.027344 124.453125 L 242.921875 121.738281 L 237.617188 121.738281 L 236.53125 124.453125 L 233.550781 124.453125 Z M 218.589844 115.15625 L 216.964844 119.230469 L 220.25 119.230469 Z M 217.433594 110.628906 L 219.742188 110.628906 L 225.375 124.453125 L 222.378906 124.453125 L 221.269531 121.738281 L 215.964844 121.738281 L 214.878906 124.453125 L 211.898438 124.453125 Z M 189.730469 110.628906 L 193.273438 110.628906 L 195.863281 118.914062 L 198.453125 110.628906 L 201.867188 110.628906 L 203.648438 124.453125 L 200.8125 124.453125 L 199.589844 114.722656 L 196.546875 124.453125 L 195.195312 124.453125 L 192.070312 114.640625 L 190.917969 124.453125 L 188.03125 124.453125 Z M 173.039062 115.15625 L 171.414062 119.230469 L 174.703125 119.230469 Z M 171.886719 110.628906 L 174.195312 110.628906 L 179.828125 124.453125 L 176.828125 124.453125 L 175.722656 121.738281 L 170.414062 121.738281 L 169.332031 124.453125 L 166.347656 124.453125 Z M 171.886719 110.628906 "/>
+<path class="mk-jayasom" fill-rule="nonzero" d="M 407.332031 25.265625 L 390.105469 66.550781 L 372.761719 25.265625 L 357.605469 82.96875 L 364.980469 82.96875 L 374.277344 47.402344 L 390.113281 85.101562 L 405.898438 47.710938 L 415.070312 82.96875 L 422.488281 82.96875 Z M 339.0625 55.289062 C 339.0625 49.179688 336.859375 44.03125 332.453125 39.847656 C 328.046875 35.664062 322.628906 33.570312 316.191406 33.570312 C 310.074219 33.570312 304.835938 35.699219 300.472656 39.957031 C 296.109375 44.214844 293.925781 49.324219 293.925781 55.289062 C 293.925781 61.34375 296.164062 66.460938 300.644531 70.648438 C 305.125 74.832031 310.609375 76.925781 317.105469 76.925781 C 323.078125 76.925781 328.226562 74.789062 332.5625 70.519531 C 336.898438 66.246094 339.0625 61.171875 339.0625 55.289062 M 338.152344 34.457031 C 344.121094 40.207031 347.109375 47.035156 347.109375 54.941406 C 347.109375 63.316406 344.160156 70.390625 338.257812 76.171875 C 332.359375 81.949219 325.121094 84.839844 316.539062 84.839844 C 308.074219 84.839844 300.871094 81.929688 294.925781 76.105469 C 288.984375 70.28125 286.011719 63.230469 286.011719 54.941406 C 286.011719 46.949219 289.027344 40.097656 295.058594 34.390625 C 301.085938 28.683594 308.335938 25.832031 316.800781 25.832031 C 325.0625 25.832031 332.179688 28.707031 338.152344 34.457031 M 267.886719 57.550781 C 266.613281 55.957031 264.984375 54.503906 263.003906 53.183594 C 261.019531 51.867188 258.25 50.441406 254.691406 48.914062 C 251.132812 47.386719 248.613281 45.976562 247.136719 44.691406 C 245.65625 43.40625 244.917969 41.925781 244.917969 40.246094 C 244.917969 38.3125 245.765625 36.730469 247.457031 35.5 C 249.148438 34.273438 251.355469 33.65625 254.074219 33.65625 C 256.5625 33.65625 258.464844 34.070312 259.777344 34.898438 C 261.09375 35.722656 262.5625 36.976562 264.183594 38.65625 L 270.3125 33.746094 C 268.253906 31.078125 265.675781 29.09375 262.574219 27.789062 C 259.472656 26.480469 256.414062 25.832031 253.398438 25.832031 C 248.847656 25.832031 244.976562 27.230469 241.789062 30.023438 C 238.597656 32.820312 237.003906 36.203125 237.003906 40.167969 C 237.003906 41.820312 237.289062 43.371094 237.855469 44.820312 C 238.421875 46.269531 239.316406 47.722656 240.539062 49.1875 C 241.761719 50.648438 243.210938 51.910156 244.882812 52.964844 C 246.554688 54.023438 248.941406 55.191406 252.042969 56.460938 C 255.144531 57.734375 257.40625 58.859375 258.832031 59.84375 C 260.25 60.824219 261.441406 62.074219 262.398438 63.59375 C 263.355469 65.109375 263.835938 66.621094 263.835938 68.125 C 263.835938 70.640625 262.921875 72.71875 261.097656 74.367188 C 259.269531 76.015625 256.980469 76.835938 254.226562 76.835938 C 248.542969 76.835938 244.324219 73.722656 241.570312 67.488281 L 234.003906 69.621094 C 235.917969 74.691406 238.648438 78.5 242.199219 81.035156 C 245.753906 83.570312 249.847656 84.839844 254.484375 84.839844 C 259.242188 84.839844 263.292969 83.21875 266.640625 79.972656 C 269.988281 76.726562 271.664062 72.804688 271.664062 68.195312 C 271.664062 66.226562 271.351562 64.359375 270.730469 62.589844 C 270.105469 60.824219 269.160156 59.144531 267.886719 57.550781 M 206.4375 62.488281 L 197.480469 42.730469 L 188.617188 62.488281 Z M 197.5 25.4375 L 223.65625 82.96875 L 215.726562 82.96875 L 209.300781 68.792969 L 185.789062 68.792969 L 179.433594 82.96875 L 171.5625 82.96875 Z M 145.726562 49.875 L 132.117188 27.65625 L 123.746094 27.65625 L 141.832031 57.660156 L 141.832031 82.96875 L 149.398438 82.96875 L 149.398438 57.574219 L 167.578125 27.65625 L 159.1875 27.65625 Z M 102.472656 62.488281 L 93.511719 42.730469 L 84.652344 62.488281 Z M 93.535156 25.4375 L 119.691406 82.96875 L 111.761719 82.96875 L 105.332031 68.792969 L 81.824219 68.792969 L 75.464844 82.96875 L 67.59375 82.96875 Z M 44.214844 27.65625 L 51.78125 27.65625 L 51.78125 68.273438 C 51.78125 79.316406 47.1875 84.839844 37.996094 84.839844 C 34.808594 84.839844 31.664062 84.011719 28.5625 82.359375 L 32.300781 76.183594 C 34.734375 77.027344 36.722656 77.445312 38.257812 77.445312 C 42.230469 77.445312 44.214844 74.78125 44.214844 69.445312 Z M 44.214844 27.65625 "/></g>
+      </svg>
+
+      <h1 class="hero" id="heroEn"></h1>
+      <p class="hero-ar" id="heroAr"></p>
+
+      <div class="rule rv" id="rule1" aria-hidden="true"></div>
+
+      <p class="verse" id="verse"></p>
+
+      <div class="details" id="details">
+        <p class="detail key" id="dDate"></p>
+        <p class="detail" id="dPlace"></p>
+        <p class="detail dress"><span class="d-lab" id="dDressLab"></span><span id="dDress"></span></p>
+      </div>
+
+      <div class="countdown rv" id="countdown" aria-live="off">
+        <div class="cd-unit"><span class="cd-num" id="cdD">—</span><span class="cd-lab" id="cdDL"></span></div>
+        <span class="cd-dot" aria-hidden="true"></span>
+        <div class="cd-unit"><span class="cd-num" id="cdH">—</span><span class="cd-lab" id="cdHL"></span></div>
+        <span class="cd-dot" aria-hidden="true"></span>
+        <div class="cd-unit"><span class="cd-num" id="cdM">—</span><span class="cd-lab" id="cdML"></span></div>
+      </div>
+
+      <p class="note" id="rsvpBy"></p>
+
+      <button class="cta rv" id="beginBtn" type="button"></button>
+    </div>
+  </section>
+
+  <!-- ░░ stage 2 — the rsvp ░░ -->
+  <section class="stage" id="stForm" aria-label="Confirm your attendance">
+    <div class="wrap">
+      <svg class="progress" id="progress" viewBox="0 0 204 84" aria-hidden="true"></svg>
+
+      <form class="field" id="form" novalidate>
+        <label class="f-label" id="fLabel" for="fInput"></label>
+
+        <input class="f-input" id="fInput" type="text" autocomplete="name"
+               autocapitalize="words" spellcheck="false" />
+
+        <div class="choices" id="fChoices" hidden></div>
+
+        <p class="f-err" id="fErr" role="alert"></p>
+
+        <div class="f-nav">
+          <button class="f-back" id="fBack" type="button" hidden></button>
+          <button class="cta" id="fNext" type="submit" style="margin-top:0"></button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ░░ stage 3 — the closing ░░ -->
+  <section class="stage" id="stDone" aria-label="Confirmed">
+    <div class="wrap">
+      <svg class="final-mark" id="finalMark" viewBox="0 0 204 84" aria-hidden="true"></svg>
+      <h2 class="hero rv" id="doneEn"></h2>
+      <p class="hero-ar rv" id="doneAr"></p>
+      <div class="rule rv" id="doneRule" aria-hidden="true"></div>
+      <p class="verse rv" id="doneVerse"></p>
+      <button class="cta rv" id="calBtn" type="button"></button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+'use strict';
+
+/* ══════════════════════════ copy ══════════════════════════ */
+const COPY = {
+  en: {
+    lang: 'عربي', skip: 'Skip',
+    heroA: 'An evening at AMAALA',
+    heroB: 'رحلتك تبدأ هنا',
+    verse: 'The evening will begin with a question.\nWhat it reveals is yours to discover.',
+    date: 'Sunday · 13 September · 5:30 PM',
+    place: 'Jayasom · AMAALA · Red Sea',
+    dressLab: 'Dress code', dress: 'Smart casual resort wear',
+    cdD: 'Days', cdH: 'Hours', cdM: 'Minutes',
+    rsvpBy: 'Kindly respond by 6 September',
+    begin: 'Begin the Discovery',
+    steps: [
+      { label: 'Your name',      type: 'text',  ac: 'name',  im: 'text',  cap: 'words' },
+      { label: 'Mobile number',  type: 'tel',   ac: 'tel',   im: 'tel',   cap: 'off'   },
+      { label: 'Email address',  type: 'email', ac: 'email', im: 'email', cap: 'off'   },
+      { label: 'Will you join us?', type: 'choice',
+        options: [{ v: 'yes', t: 'Yes, I will be there' }, { v: 'no', t: 'I cannot attend' }] }
+    ],
+    next: 'Continue', back: 'Back',
+    err: { name: 'Please enter your name',
+           tel: 'Please enter a valid mobile number',
+           email: 'Please enter a valid email address' },
+    doneA: 'Your Place Is Written',
+    doneB: 'موعدك مكتوبٌ بين النجوم',
+    doneVerse: 'We will see you under this sky, on the thirteenth of September.',
+    cal: 'Add to calendar',
+    noA: 'The Stars Will Keep Your Place',
+    noB: 'النجوم تحفظ مكانك',
+    noVerse: 'Until another evening.'
+  },
+  ar: {
+    lang: 'EN', skip: 'تخطٍّ',
+    heroA: 'رحلتك تبدأ هنا',
+    heroB: 'An evening at AMAALA',
+    verse: 'المساء سيبدأ بسؤال.\nوما يكشفه لك، وحدك من يكتشفه.',
+    date: 'الأحد ١٣ سبتمبر · \u2066٥:٣٠\u2069 مساءً',
+    place: 'جاياسوم · أمالا · البحر الأحمر',
+    dressLab: 'الزيّ المقترح', dress: 'أناقة غير رسمية',
+    cdD: 'يوم', cdH: 'ساعة', cdM: 'دقيقة',
+    rsvpBy: 'نرجو تأكيد الحضور قبل ٦ سبتمبر',
+    begin: 'ابدأ الاكتشاف',
+    steps: [
+      { label: 'الاسم',                type: 'text',  ac: 'name',  im: 'text',  cap: 'words' },
+      { label: 'رقم الجوال',           type: 'tel',   ac: 'tel',   im: 'tel',   cap: 'off'   },
+      { label: 'البريد الإلكتروني',    type: 'email', ac: 'email', im: 'email', cap: 'off'   },
+      { label: 'هل ستكون معنا؟', type: 'choice',
+        options: [{ v: 'yes', t: 'نعم، سأكون هناك' }, { v: 'no', t: 'لن أتمكن من الحضور' }] }
+    ],
+    next: 'متابعة', back: 'رجوع',
+    err: { name: 'الرجاء إدخال الاسم',
+           tel: 'الرجاء إدخال رقم جوال صحيح',
+           email: 'الرجاء إدخال بريد إلكتروني صحيح' },
+    doneA: 'موعدك مكتوبٌ بين النجوم',
+    doneB: 'Your Place Is Written',
+    doneVerse: 'نلقاك تحت هذه السماء، في الثالث عشر من سبتمبر.',
+    cal: 'أضف إلى التقويم',
+    noA: 'النجوم تحفظ مكانك',
+    noB: 'The Stars Will Keep Your Place',
+    noVerse: 'إلى مساءٍ آخر.'
+  }
+};
+
+/* ════════════════ WHERE THE RSVP ANSWERS GO ════════════════
+   The only place in this page that knows about a destination. To send answers
+   somewhere else — a SharePoint list, Power Automate, an internal API — change
+   `endpoint`, `fields` and `mode` and redeploy. Nothing else depends on it.
+
+   mode 'form' — URL-encoded POST through a hidden iframe. What Jotform and most
+                 form services expect, and it sidesteps cross-origin blocking.
+   mode 'json' — JSON POST via fetch. For your own API, which must allow CORS.
+
+   Currently: Jotform "Jayasom AMAALA — Opening RSVP" (form 262356522129052).
+   ══════════════════════════════════════════════════════════ */
+const RSVP = {
+  endpoint: 'https://submit.jotform.com/submit/262356877606065',
+  mode: 'form',
+  fields: {
+    name:        'q2_q2_textbox0',
+    mobile:      'q3_q3_textbox1',
+    email:       'q4_q4_email2',
+    attending:   'q5_q5_radio3',
+    language:    'q6_q6_textbox4',
+    submittedAt: 'q7_q7_textbox5'
+  },
+  /* simple_spc is Jotform's own anti-spam pairing; the live form sends it and
+     submissions are rejected without it. */
+  extra: {
+    formID: '262356877606065',
+    simple_spc: '262356877606065-262356877606065'
+  },
+  /* Jotform stores this choice verbatim, so send words rather than yes/no codes */
+  attendingValue: { yes: 'Yes', no: 'No' }
+};
+
+const LETTERS = [{"id":"J","pts":[[48,25.4],[48,60],[47,72],[39,82.4],[30.5,78]],"seg":[[0,1],[1,2],[2,3],[3,4]]},{"id":"A1","pts":[[93.2,25.4],[81.3,69],[69.5,85.4],[105.1,69],[117,85.4]],"seg":[[0,1],[1,2],[0,3],[3,4],[1,3]]},{"id":"Y","pts":[[125.5,25.4],[165.7,25.4],[145.6,56],[145.6,85.4]],"seg":[[0,2],[1,2],[2,3]]},{"id":"A2","pts":[[197.9,25.4],[186,69],[174.1,85.4],[209.8,69],[221.6,85.4]],"seg":[[0,1],[1,2],[0,3],[3,4],[1,3]]},{"id":"S","pts":[[267.5,33.5],[250,26.8],[236.8,41],[252,55],[269,68.5],[252,84],[236.5,75.5]],"seg":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]]},{"id":"O","pts":[[317.51,28.24],[337.24,36.21],[345.41,55.44],[337.24,74.67],[317.51,82.64],[297.78,74.67],[289.61,55.44],[297.78,36.21]],"seg":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0]]},{"id":"M","pts":[[361.5,85.4],[375.5,25.4],[391.5,85.4],[407.5,25.4],[421.5,85.4]],"seg":[[0,1],[1,2],[2,3],[3,4]]}];
+const EVENT_AT = new Date('2026-09-13T17:30:00+03:00');
+const PERSONAL = [[26, 52], [80, 24], [128, 60], [178, 28]];
+const PLINKS = [[0, 1], [1, 2], [2, 3]];
+
+const $ = (id) => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine = matchMedia('(pointer: fine)').matches;
+
+let lang = 'en';
+let timers = [];
+const later = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
+const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
+
+/* ══════════════════════════ the sky ══════════════════════════ */
+const cv = $('sky'), cx = cv.getContext('2d', { alpha: true });
+let W = 0, H = 0, DPR = 1, stars = [], shooters = [];
+const ptr = { x: -999, y: -999, tx: -999, ty: -999, active: false, k: 0 };
+const tilt = { x: 0, y: 0, tx: 0, ty: 0 };
+
+/* The light that reaches for nearby stars follows a finger as readily as a
+   cursor — a fingertip just needs more room, since it covers the very point
+   it is touching. */
+const REACH = fine ? 86 : 116;      /* radius of the glow itself */
+const NEAR2 = fine ? 24000 : 42000; /* how far it looks for a star to reach */
+const NEARD = fine ? 155 : 205;     /* distance at which a thread fades out */
+
+function seedStars() {
+  const area = W * H;
+  const n = Math.min(520, Math.max(180, Math.round(area / 2900)));
+  stars = [];
+  for (let i = 0; i < n; i++) {
+    const depth = Math.random();
+    stars.push({
+      x: Math.random(), y: Math.random(),
+      r: (0.34 + Math.random() * 1.05) * (0.55 + depth * 0.9),
+      a: 0.16 + Math.random() * 0.6,
+      ph: Math.random() * Math.PI * 2,
+      sp: 0.16 + Math.random() * 0.5,
+      p: 0.1 + depth * 0.6,
+      warm: Math.random() < 0.24
+    });
+  }
+}
+
+function sizeCanvas() {
+  DPR = Math.min(devicePixelRatio || 1, 2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  cx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  seedStars();
+}
+
+function spawnShooter() {
+  if (reduce) return;
+  const fromLeft = Math.random() < 0.5;
+  shooters.push({
+    x: fromLeft ? -0.06 * W : 1.06 * W,
+    y: (0.05 + Math.random() * 0.22) * H,
+    vx: (fromLeft ? 1 : -1) * (W * 0.0125),
+    vy: H * 0.0052,
+    life: 1
+  });
+}
+
+let t0 = performance.now();
+function frame(now) {
+  const t = (now - t0) / 1000;
+  cx.clearRect(0, 0, W, H);
+
+  ptr.x += (ptr.tx - ptr.x) * 0.08;
+  ptr.y += (ptr.ty - ptr.y) * 0.08;
+  tilt.x += (tilt.tx - tilt.x) * 0.045;
+  tilt.y += (tilt.ty - tilt.y) * 0.045;
+
+  /* Intensity eases in and out, so lifting a finger lets the light fade
+     instead of cutting it off mid-reach. */
+  ptr.k += ((ptr.active ? 1 : 0) - ptr.k) * 0.055;
+  const lit = !reduce && ptr.k > 0.012;
+
+  const px = ptr.active ? (ptr.x / W - 0.5) : 0;
+  const py = ptr.active ? (ptr.y / H - 0.5) : 0;
+
+  const near = [];
+  for (let i = 0; i < stars.length; i++) {
+    const s = stars[i];
+    const ox = (px * -26 + tilt.x * 30) * s.p;
+    const oy = (py * -18 + tilt.y * 24) * s.p;
+    const x = s.x * W + ox, y = s.y * H + oy;
+    const tw = reduce ? 1 : 0.72 + 0.28 * Math.sin(t * s.sp + s.ph);
+    const a = s.a * tw;
+
+    cx.beginPath();
+    cx.arc(x, y, s.r, 0, 6.2832);
+    cx.fillStyle = s.warm
+      ? 'rgba(236,198,129,' + a.toFixed(3) + ')'
+      : 'rgba(246,240,236,' + a.toFixed(3) + ')';
+    cx.fill();
+
+    if (s.r > 1.15 && a > 0.5) {
+      cx.beginPath();
+      cx.arc(x, y, s.r * 3.4, 0, 6.2832);
+      cx.fillStyle = 'rgba(236,198,129,' + (a * 0.05).toFixed(3) + ')';
+      cx.fill();
+    }
+
+    if (lit && near.length < 7) {
+      const dx = x - ptr.x, dy = y - ptr.y;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < NEAR2) near.push({ x, y, d: Math.sqrt(d2) });
+    }
+  }
+
+  /* the pointer as a point of light, reaching toward what is near it */
+  if (lit) {
+    const k = ptr.k;
+    const g = cx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, REACH);
+    g.addColorStop(0, 'rgba(246,237,231,' + (0.13 * k).toFixed(3) + ')');
+    g.addColorStop(0.42, 'rgba(236,198,129,' + (0.05 * k).toFixed(3) + ')');
+    g.addColorStop(1, 'rgba(236,198,129,0)');
+    cx.fillStyle = g;
+    cx.beginPath(); cx.arc(ptr.x, ptr.y, REACH, 0, 6.2832); cx.fill();
+
+    cx.lineWidth = 0.6;
+    for (const s of near) {
+      const a = (1 - s.d / NEARD) * 0.36 * k;
+      if (a <= 0) continue;
+      cx.strokeStyle = 'rgba(236,198,129,' + a.toFixed(3) + ')';
+      cx.beginPath(); cx.moveTo(ptr.x, ptr.y); cx.lineTo(s.x, s.y); cx.stroke();
+    }
+    cx.beginPath(); cx.arc(ptr.x, ptr.y, 1.5, 0, 6.2832);
+    cx.fillStyle = 'rgba(255,252,247,' + (0.72 * k).toFixed(3) + ')'; cx.fill();
+  }
+
+  /* shooting stars */
+  for (let i = shooters.length - 1; i >= 0; i--) {
+    const s = shooters[i];
+    s.x += s.vx; s.y += s.vy; s.life -= 0.011;
+    if (s.life <= 0 || s.x < -0.2 * W || s.x > 1.2 * W) { shooters.splice(i, 1); continue; }
+    const tx = s.x - s.vx * 13, ty = s.y - s.vy * 13;
+    const g = cx.createLinearGradient(tx, ty, s.x, s.y);
+    g.addColorStop(0, 'rgba(236,198,129,0)');
+    g.addColorStop(1, 'rgba(255,248,238,' + (s.life * 0.8).toFixed(3) + ')');
+    cx.strokeStyle = g; cx.lineWidth = 1.5; cx.lineCap = 'round';
+    cx.beginPath(); cx.moveTo(tx, ty); cx.lineTo(s.x, s.y); cx.stroke();
+    cx.beginPath(); cx.arc(s.x, s.y, 1.9, 0, 6.2832);
+    cx.fillStyle = 'rgba(255,252,246,' + (s.life * 0.9).toFixed(3) + ')'; cx.fill();
+  }
+
+  requestAnimationFrame(frame);
+}
+
+addEventListener('resize', sizeCanvas, { passive: true });
+function aimPointer(e, snap) {
+  ptr.tx = e.clientX; ptr.ty = e.clientY;
+  /* First contact lands the light where it is, instead of letting it streak
+     in from off-screen. */
+  if (snap || ptr.x < -900) { ptr.x = e.clientX; ptr.y = e.clientY; }
+  ptr.active = true;
+}
+
+addEventListener('pointermove', (e) => aimPointer(e, false), { passive: true });
+addEventListener('pointerleave', () => { ptr.active = false; }, { passive: true });
+
+/* A finger is a pointer too. Touch gets the light on contact — so a single
+   tap lights the sky, not just a drag — and releases it on lift, where the
+   eased intensity carries it out gently. A mouse keeps its old behaviour:
+   present as long as it is over the page. */
+addEventListener('pointerdown', (e) => {
+  if (e.pointerType !== 'mouse') aimPointer(e, true);
+}, { passive: true });
+addEventListener('pointerup', (e) => {
+  if (e.pointerType !== 'mouse') ptr.active = false;
+}, { passive: true });
+addEventListener('pointercancel', () => { ptr.active = false; }, { passive: true });
+
+addEventListener('touchmove', (e) => {
+  const t = e.touches[0]; if (!t) return;
+  tilt.tx = (t.clientX / innerWidth - 0.5) * 1.1;
+  tilt.ty = (t.clientY / innerHeight - 0.5) * 1.1;
+}, { passive: true });
+
+function enableTilt() {
+  addEventListener('deviceorientation', (e) => {
+    if (e.gamma == null) return;
+    tilt.tx = Math.max(-1, Math.min(1, e.gamma / 34));
+    tilt.ty = Math.max(-1, Math.min(1, ((e.beta || 45) - 45) / 34));
+  }, { passive: true });
+}
+if (typeof DeviceOrientationEvent !== 'undefined' &&
+    typeof DeviceOrientationEvent.requestPermission !== 'function') enableTilt();
+
+/* ══════════════════════════ the constellation ══════════════════════════ */
+const skel = $('skeleton');
+const groups = [];
+
+function buildSkeleton() {
+  LETTERS.forEach((L) => {
+    const g = document.createElementNS(NS, 'g');
+    const lines = [], nodes = [];
+
+    L.seg.forEach(([a, b]) => {
+      const p1 = L.pts[a], p2 = L.pts[b];
+      const ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('class', 'sk-line');
+      ln.setAttribute('x1', p1[0]); ln.setAttribute('y1', p1[1]);
+      ln.setAttribute('x2', p2[0]); ln.setAttribute('y2', p2[1]);
+      const len = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
+      ln.style.setProperty('--len', len.toFixed(2));
+      g.appendChild(ln); lines.push(ln);
+    });
+
+    L.pts.forEach((p) => {
+      const n = document.createElementNS(NS, 'g');
+      n.setAttribute('class', 'sk-node');
+      const halo = document.createElementNS(NS, 'circle');
+      halo.setAttribute('class', 'sk-halo');
+      halo.setAttribute('cx', p[0]); halo.setAttribute('cy', p[1]); halo.setAttribute('r', 3.6);
+      const core = document.createElementNS(NS, 'circle');
+      core.setAttribute('class', 'sk-core');
+      core.setAttribute('cx', p[0]); core.setAttribute('cy', p[1]); core.setAttribute('r', 1.05);
+      n.appendChild(halo); n.appendChild(core);
+      g.appendChild(n); nodes.push(n);
+    });
+
+    skel.appendChild(g);
+    groups.push({ lines, nodes });
+  });
+}
+
+/* ══════════════════════════ personal constellation ══════════════════════════ */
+function buildPersonal(svg) {
+  svg.textContent = '';
+  const links = [], nodes = [];
+  PLINKS.forEach(([a, b]) => {
+    const p1 = PERSONAL[a], p2 = PERSONAL[b];
+    const ln = document.createElementNS(NS, 'line');
+    ln.setAttribute('class', 'pg-link');
+    ln.setAttribute('x1', p1[0]); ln.setAttribute('y1', p1[1]);
+    ln.setAttribute('x2', p2[0]); ln.setAttribute('y2', p2[1]);
+    ln.style.setProperty('--len', Math.hypot(p2[0] - p1[0], p2[1] - p1[1]).toFixed(2));
+    svg.appendChild(ln); links.push(ln);
+  });
+  PERSONAL.forEach((p) => {
+    const n = document.createElementNS(NS, 'g');
+    n.setAttribute('class', 'pg-node');
+    const halo = document.createElementNS(NS, 'circle');
+    halo.setAttribute('class', 'pg-halo');
+    halo.setAttribute('cx', p[0]); halo.setAttribute('cy', p[1]); halo.setAttribute('r', 9);
+    const core = document.createElementNS(NS, 'circle');
+    core.setAttribute('class', 'pg-core');
+    core.setAttribute('cx', p[0]); core.setAttribute('cy', p[1]); core.setAttribute('r', 2.1);
+    n.appendChild(halo); n.appendChild(core);
+    svg.appendChild(n); nodes.push(n);
+  });
+  return { links, nodes };
+}
+
+const pg = buildPersonal($('progress'));
+const fin = buildPersonal($('finalMark'));
+
+/* ══════════════════════════ the opening sequence ══════════════════════════ */
+let introDone = false;   /* the chrome is up */
+let revealDone = false;  /* every last word has settled */
+
+/* Set text as individually revealable words. Arabic shaping is unaffected —
+   letters only join inside a word, never across a space. */
+function setWords(el, str) {
+  el.textContent = '';
+  const frag = document.createDocumentFragment();
+  str.split('\n').forEach((line, li) => {
+    if (li) frag.appendChild(document.createElement('br'));
+    line.split(/\s+/).filter(Boolean).forEach((word, wi) => {
+      if (wi) frag.appendChild(document.createTextNode(' '));
+      const sp = document.createElement('span');
+      sp.className = 'w';
+      sp.textContent = word;
+      frag.appendChild(sp);
+    });
+  });
+  el.appendChild(frag);
+  if (el.dataset.settled === '1') showWords(el);
+}
+
+function showWords(el) {
+  el.dataset.settled = '1';
+  el.querySelectorAll('.w').forEach((w) => w.classList.add('in'));
+}
+
+/* Words arrive slowly at first and gather pace — the invitation opens the way
+   someone reads it aloud. `quicken` shortens each successive gap. */
+function revealWords(el, at, gap, quicken) {
+  const ws = el.querySelectorAll('.w');
+  let t = at;
+  ws.forEach((w, i) => {
+    later(() => w.classList.add('in'), t);
+    t += Math.max(gap - i * (quicken || 0), gap * 0.4);
+  });
+  later(() => { el.dataset.settled = '1'; }, t);
+  return t;
+}
+
+const WORDED = ['heroEn', 'heroAr', 'verse', 'dDate', 'dPlace', 'dDressLab', 'dDress', 'rsvpBy'];
+const BLOCKS = ['rule1', 'countdown', 'beginBtn'];
+
+/* The invitation copy is laid out but invisible during the intro, which would
+   push the constellation to the top of the screen. Hold the mark at the optical
+   centre while it draws, then let it rise into its real place as the copy
+   arrives — the lift is the transition between the two moments. */
+const markEl = $('mark');
+function holdMarkCentre() {
+  const r = markEl.getBoundingClientRect();
+  if (!r.height) return;
+  const d = (innerHeight / 2) - (r.top + r.height / 2);
+  markEl.style.transition = 'none';
+  markEl.style.transform = 'translateY(' + d.toFixed(1) + 'px) scale(1.045)';
+  void markEl.offsetWidth;
+}
+function releaseMark() {
+  markEl.style.transition = 'transform 1.75s var(--ease)';
+  markEl.style.transform = 'translateY(0) scale(1)';
+}
+
+function revealContent(from) {
+  later(releaseMark, from - 260);
+
+  let t = revealWords($('heroEn'), from, 260, 18);
+  t = revealWords($('heroAr'), t + 180, 200, 14);
+  later(() => $('rule1').classList.add('in'), t + 40);
+  t = revealWords($('verse'), t + 320, 105, 4);
+  t = revealWords($('dDate'), t + 250, 66);
+  t = revealWords($('dPlace'), t + 80, 56);
+  t = revealWords($('dDressLab'), t + 80, 50);
+  t = revealWords($('dDress'), t, 50);
+  later(() => $('countdown').classList.add('in'), t + 100);
+  t = revealWords($('rsvpBy'), t + 170, 44);
+  later(() => $('beginBtn').classList.add('in'), t + 130);
+  later(settle, t + 420);
+}
+
+/* The reveal owns the screen while it runs: Skip is the only control, and the
+   language toggle only appears once there is nothing left to interrupt. */
+function settle() {
+  revealDone = true;
+  introDone = true;
+  $('chrome').classList.add('in');
+  $('skipBtn').classList.remove('in');
+}
+
+function finishIntro() {
+  if (revealDone) return;
+  clearAll();
+  releaseMark();
+  groups.forEach((g) => {
+    g.nodes.forEach((n) => n.classList.add('lit'));
+    g.lines.forEach((l) => l.classList.add('drawn'));
+  });
+  skel.classList.add('faded');
+  $('realmark').classList.add('shown');
+  WORDED.forEach((id) => showWords($(id)));
+  BLOCKS.forEach((id) => $(id).classList.add('in'));
+  settle();
+}
+
+function litSky() { requestAnimationFrame(() => cv.classList.add('lit')); }
+
+function playIntro() {
+  $('stInvite').classList.add('on');
+  litSky();
+
+  if (reduce) { finishIntro(); return; }
+
+  holdMarkCentre();
+  $('skipBtn').classList.add('in');
+
+  /* the first letters are drawn slowly, the last ones flow */
+  const START = 1500;
+  let at = START;
+  groups.forEach((g, i) => {
+    g.nodes.forEach((n, k) => later(() => n.classList.add('lit'), at + k * 62));
+    g.lines.forEach((l, k) => later(() => l.classList.add('drawn'), at + 330 + k * 70));
+    at += Math.max(880 - i * 62, 480);
+  });
+
+  const end = at + 820;
+  later(() => { skel.classList.add('faded'); $('realmark').classList.add('shown'); }, end);
+  revealContent(end + 1000);
+}
+
+/* ══════════════════════════ stages ══════════════════════════ */
+let stage = 'invite';
+function goStage(name) {
+  const map = { invite: 'stInvite', form: 'stForm', done: 'stDone' };
+  const from = $(map[stage]), to = $(map[name]);
+  if (from === to) return;
+  from.classList.add('out'); from.classList.remove('on');
+  later(() => from.classList.remove('out'), 900);
+  later(() => {
+    to.classList.add('on');
+    if (name === 'form') { paintStep(); focusStep(); }
+  }, 620);
+  stage = name;
+}
+
+/* ══════════════════════════ the form ══════════════════════════ */
+const answers = { name: '', mobile: '', email: '', attending: null };
+const KEYS = ['name', 'mobile', 'email', 'attending'];
+let step = 0;
+
+const input = $('fInput'), choicesEl = $('fChoices'), errEl = $('fErr');
+
+function stepDef() { return COPY[lang].steps[step]; }
+
+function paintStep() {
+  const s = stepDef(), c = COPY[lang];
+  $('fLabel').textContent = s.label;
+  errEl.classList.remove('show');
+  $('fBack').hidden = step === 0;
+  $('fBack').textContent = c.back;
+
+  document.querySelector('.f-nav').classList.toggle('solo', s.type === 'choice');
+
+  const field = $('form');
+  field.classList.remove('enter');
+  void field.offsetWidth;
+  field.classList.add('enter');
+
+  if (s.type === 'choice') {
+    input.hidden = true; choicesEl.hidden = false; $('fNext').hidden = true;
+    choicesEl.textContent = '';
+    s.options.forEach((o) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'choice'; b.textContent = o.t;
+      b.addEventListener('click', () => { answers.attending = o.v; ignite(3); later(submit, 620); });
+      choicesEl.appendChild(b);
+    });
+  } else {
+    input.hidden = false; choicesEl.hidden = true; $('fNext').hidden = false;
+    $('fNext').textContent = c.next;
+    input.type = s.type; input.setAttribute('autocomplete', s.ac);
+    input.setAttribute('inputmode', s.im); input.setAttribute('autocapitalize', s.cap);
+    input.value = answers[KEYS[step]] || '';
+  }
+}
+
+function focusStep() {
+  if (stepDef().type !== 'choice') later(() => input.focus({ preventScroll: true }), 420);
+}
+
+/* Each answered field lights its star and reaches a line back to the last one,
+   so the guest watches their own constellation form as they fill the form. */
+function ignite(i) {
+  pg.nodes[i].classList.add('lit');
+  if (i > 0) later(() => pg.links[i - 1].classList.add('drawn'), 220);
+}
+function dim(i) {
+  pg.nodes[i].classList.remove('lit');
+  if (i > 0) pg.links[i - 1].classList.remove('drawn');
+}
+
+function validate() {
+  const v = input.value.trim(), c = COPY[lang];
+  if (step === 0) { if (v.length < 2) return c.err.name; }
+  if (step === 1) { if ((v.match(/\d/g) || []).length < 7) return c.err.tel; }
+  if (step === 2) { if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return c.err.email; }
+  return null;
+}
+
+$('form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const bad = validate();
+  if (bad) { errEl.textContent = bad; errEl.classList.add('show'); input.focus(); return; }
+  answers[KEYS[step]] = input.value.trim();
+  ignite(step);
+  step++; paintStep(); focusStep();
+});
+
+$('fBack').addEventListener('click', () => {
+  if (step === 0) return;
+  step--; dim(step); paintStep(); focusStep();
+});
+
+/* ══════════════════════════ submit ══════════════════════════ */
+function submit() {
+  const c = COPY[lang], coming = answers.attending === 'yes';
+
+  const payload = {
+    name: answers.name,
+    mobile: answers.mobile,
+    email: answers.email,
+    attending: answers.attending,
+    language: lang,
+    submittedAt: new Date().toISOString()
+  };
+  window.JAYASOM_RSVP = payload;
+  send(payload);
+
+  $('doneEn').textContent = coming ? c.doneA : c.noA;
+  $('doneAr').textContent = coming ? c.doneB : c.noB;
+  $('doneVerse').textContent = coming ? c.doneVerse : c.noVerse;
+  $('calBtn').textContent = c.cal;
+  $('calBtn').hidden = !coming;
+
+  fin.nodes.forEach((n) => n.classList.add('lit'));
+  goStage('done');
+  later(() => {
+    fin.links.forEach((l, i) => later(() => l.classList.add('drawn'), i * 260));
+  }, 900);
+  ['doneEn', 'doneAr', 'doneRule', 'doneVerse', 'calBtn'].forEach((id, i) =>
+    later(() => $(id).classList.add('in'), 1500 + i * 200));
+}
+
+/* ══════════════════════════ sending ══════════════════════════ */
+/* Kept deliberately quiet: a guest is never shown a technical error on an
+   invitation. Failures are recorded on the page for diagnosis instead, which is
+   why the first live RSVP must be checked at the destination before the link
+   goes out. */
+function send(payload) {
+  const data = {};
+  Object.keys(RSVP.fields).forEach((k) => {
+    let v = payload[k];
+    if (k === 'attending' && RSVP.attendingValue) v = RSVP.attendingValue[v] || v;
+    data[RSVP.fields[k]] = v == null ? '' : String(v);
+  });
+  Object.assign(data, RSVP.extra || {});
+
+  window.JAYASOM_SENT = data;
+
+  try {
+    if (RSVP.mode === 'json') {
+      fetch(RSVP.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then((r) => { window.JAYASOM_SEND_OK = r.ok; })
+        .catch((e) => { window.JAYASOM_SEND_ERR = String(e); });
+      return;
+    }
+
+    /* A real form POST into a hidden iframe: no cross-origin preflight, and it
+       survives the page being closed the instant the guest is done. */
+    let frame = document.getElementById('rsvpSink');
+    if (!frame) {
+      frame = document.createElement('iframe');
+      frame.id = 'rsvpSink';
+      frame.name = 'rsvpSink';
+      frame.setAttribute('aria-hidden', 'true');
+      frame.style.cssText = 'position:absolute;width:0;height:0;border:0;left:-9999px';
+      document.body.appendChild(frame);
+    }
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = RSVP.endpoint;
+    form.target = 'rsvpSink';
+    form.style.display = 'none';
+    form.acceptCharset = 'utf-8';
+    Object.keys(data).forEach((k) => {
+      const i = document.createElement('input');
+      i.type = 'hidden'; i.name = k; i.value = data[k];
+      form.appendChild(i);
+    });
+    document.body.appendChild(form);
+    form.submit();
+    later(() => form.remove(), 4000);
+    window.JAYASOM_SEND_OK = true;
+  } catch (e) {
+    window.JAYASOM_SEND_ERR = String(e);
+  }
+}
+
+/* ══════════════════════════ decline path ══════════════════════════ */
+/* handled inside submit() — the closing simply changes voice. */
+
+/* ══════════════════════════ countdown ══════════════════════════ */
+const AR_DIGITS = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+const num = (n) => {
+  const s = String(n);
+  return lang === 'ar' ? s.replace(/\d/g, (d) => AR_DIGITS[+d]) : s;
+};
+
+function tickCountdown() {
+  const ms = EVENT_AT - Date.now();
+  if (ms <= 0) { $('countdown').style.display = 'none'; return; }
+  const m = Math.floor(ms / 60000);
+  $('cdD').textContent = num(Math.floor(m / 1440));
+  $('cdH').textContent = num(Math.floor(m / 60) % 24);
+  $('cdM').textContent = num(m % 60);
+}
+
+/* ══════════════════════════ calendar ══════════════════════════ */
+$('calBtn').addEventListener('click', () => {
+  const dt = (d) => d.toISOString().replace(/[-:]|\.\d{3}/g, '');
+  const end = new Date(EVENT_AT.getTime() + 4 * 3600 * 1000);
+  const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    + '&text=' + encodeURIComponent('Jayasom · AMAALA')
+    + '&dates=' + dt(EVENT_AT) + '/' + dt(end)
+    + '&location=' + encodeURIComponent('Jayasom, AMAALA, Red Sea')
+    + '&details=' + encodeURIComponent('A New Constellation Begins.');
+  window.open(url, '_blank', 'noopener');
+});
+
+/* ══════════════════════════ copy ══════════════════════════ */
+/* Paints the (English-default, Arabic-mixed) copy into the page once at
+   startup. There is no language toggle — English is the only mode, with
+   Arabic lines kept in deliberately alongside it. */
+function applyLang() {
+  const c = COPY[lang];
+  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  document.documentElement.setAttribute('lang', lang);
+
+  $('skipBtn').textContent = c.skip;
+  setWords($('heroEn'), c.heroA);
+  setWords($('heroAr'), c.heroB);
+  setWords($('verse'), c.verse);
+  setWords($('dDate'), c.date);
+  setWords($('dPlace'), c.place);
+  setWords($('dDressLab'), c.dressLab);
+  setWords($('dDress'), c.dress);
+  $('cdDL').textContent = c.cdD;
+  $('cdHL').textContent = c.cdH;
+  $('cdML').textContent = c.cdM;
+  setWords($('rsvpBy'), c.rsvpBy);
+  $('beginBtn').textContent = c.begin;
+  $('calBtn').textContent = c.cal;
+  tickCountdown();
+
+  /* repaint the form in the new language without losing what is half-typed */
+  const pending = stepDef().type === 'choice' ? null : input.value;
+  paintStep();
+  if (pending) input.value = pending;
+}
+
+/* ══════════════════════════ wiring ══════════════════════════ */
+$('beginBtn').addEventListener('click', () => {
+  /* iOS 13+ Safari only grants tilt access from inside a real tap, and only
+     once — "Begin" is the first deliberate tap a guest makes, so ask here
+     instead of leaving iPhone guests with no tilt parallax at all. Silent
+     no-op everywhere else (Android/desktop already enabled tilt earlier). */
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then((state) => {
+      if (state === 'granted') enableTilt();
+    }).catch(() => {});
+  }
+  spawnShooter();
+  goStage('form');
+});
+
+$('skipBtn').addEventListener('click', finishIntro);
+addEventListener('keydown', (e) => {
+  if (!revealDone && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) finishIntro();
+});
+addEventListener('wheel', () => { if (!revealDone) finishIntro(); }, { passive: true, once: true });
+
+/* ══════════════════════════ start ══════════════════════════ */
+sizeCanvas();
+requestAnimationFrame(frame);
+buildSkeleton();
+applyLang();
+paintStep();
+tickCountdown();
+setInterval(tickCountdown, 20000);
+
+/* The reveal plays in full every time — it is the piece, not an onboarding step.
+   Only a direct link to the form skips it. */
+const direct = /(^|[?#&])rsvp\b/.test(location.hash + location.search);
+
+if (direct) {
+  litSky();
+  finishIntro();
+  $('stInvite').classList.add('on');
+  goStage('form');
+} else {
+  playIntro();
+}
+
+})();
+
+</script>
+</body>
+</html>
