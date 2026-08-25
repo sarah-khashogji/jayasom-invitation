@@ -34,6 +34,9 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* Several form parts are display:flex, which silently beats the hidden
+   attribute — without this, steps leak into each other. */
+[hidden]{display:none!important}
 
 body{
   background:var(--night-0);
@@ -103,6 +106,14 @@ body{
   transition:stroke-dashoffset .68s var(--ease-soft), opacity .9s ease;
 }
 .sk-line.drawn{stroke-dashoffset:0}
+/* the point of light that runs each segment, leaving the line behind it */
+.sk-spark{
+  fill:none;stroke:var(--white);stroke-width:1.5;stroke-linecap:round;
+  opacity:0;
+  transition:stroke-dashoffset .69s var(--ease-soft),opacity .34s ease;
+}
+.sk-spark.run{opacity:.92;stroke-dashoffset:0}
+.sk-spark.spent{opacity:0}
 .sk-halo{fill:var(--star);opacity:0;transition:opacity .8s ease}
 .sk-core{fill:var(--white);opacity:0;transition:opacity .55s ease}
 .sk-node.lit .sk-halo{opacity:.17}
@@ -119,13 +130,20 @@ body{
   transition:opacity 1.05s var(--ease-soft), transform 1.15s var(--ease)}
 .rv.in{opacity:1;transform:none}
 
-/* every word arrives on its own — the opening is read, not displayed */
+/* every word arrives on its own — the opening is read, not displayed.
+   Each one carries a faint bloom in with it that settles a beat later, so the
+   words look like they are condensing out of the sky rather than fading up. */
 .w{
   display:inline-block;
   opacity:0;transform:translateY(.5em);
-  transition:opacity 1.15s var(--ease-soft), transform 1.25s var(--ease);
+  text-shadow:0 0 15px rgba(236,198,129,.55), 0 0 34px rgba(246,237,231,.3);
+  transition:opacity 1.15s var(--ease-soft), transform 1.25s var(--ease),
+             text-shadow 1.9s var(--ease-soft) .3s;
 }
-.w.in{opacity:1;transform:none}
+.w.in{
+  opacity:1;transform:none;
+  text-shadow:0 0 0 rgba(236,198,129,0), 0 0 0 rgba(246,237,231,0);
+}
 
 /* ---------- typography ---------- */
 .hero{
@@ -267,6 +285,15 @@ body{
 .pg-node.lit .pg-halo{opacity:.2}
 .pg-node.lit .pg-core{fill:var(--white)}
 
+/* the payoff: the finished constellation flares, then lifts into the sky */
+.progress.flare .pg-halo{opacity:.44;transition:opacity .5s ease}
+.progress.flare .pg-link{opacity:.9}
+.progress.ascend{
+  transform:translateY(-44svh) scale(1.26);
+  opacity:0;
+  transition:transform 2.2s var(--ease-soft), opacity 1.8s ease .3s;
+}
+
 @keyframes stepIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
 .field.enter .f-label,
 .field.enter .f-input,
@@ -274,7 +301,10 @@ body{
 .field.enter .f-input{animation-delay:.09s}
 .field.enter .choices{animation-delay:.14s}
 
-.field{width:100%;max-width:min(17.5rem,80vw);display:flex;flex-direction:column;align-items:center}
+.field{width:100%;max-width:min(17.5rem,80vw);display:flex;flex-direction:column;align-items:center;
+  transition:max-width .55s var(--ease-soft)}
+/* the open answer and the release need room to breathe that a name field does not */
+.field.wide{max-width:min(27rem,88vw)}
 .f-label{
   font-size:var(--fs-label);
   letter-spacing:.3em;text-transform:uppercase;
@@ -282,6 +312,15 @@ body{
   margin-bottom:1.5rem;
 }
 [dir="rtl"] .f-label{font-family:var(--ar);letter-spacing:0;text-transform:none;font-size:var(--fs-detail);font-weight:200}
+/* A real question, rather than a field name, is read — so it is set as a
+   sentence at reading size, not as a letterspaced caption. */
+.f-label.big{
+  font-size:clamp(1.14rem,4.9vw,1.48rem);
+  letter-spacing:.01em;text-transform:none;
+  color:rgba(246,237,231,.94);
+  line-height:1.36;max-width:23rem;margin-bottom:.85rem;
+}
+[dir="rtl"] .f-label.big{font-family:var(--ar);font-weight:200}
 .f-input{
   width:100%;
   background:none;border:0;border-bottom:1px solid rgba(246,237,231,.16);
@@ -297,6 +336,104 @@ body{
 .f-input::placeholder{color:rgba(246,237,231,.2);letter-spacing:.12em}
 .f-input:focus{outline:none;border-bottom-color:rgba(236,198,129,.62)}
 .f-input:-webkit-autofill{-webkit-text-fill-color:var(--ivory);transition:background-color 9999s}
+
+/* the quiet line under a question, when one needs explaining */
+.f-sub{
+  margin:0 0 1.5rem;max-width:24rem;text-align:center;
+  font-size:var(--fs-detail);line-height:1.65;
+  color:rgba(246,237,231,.62);
+  letter-spacing:.02em;
+}
+[dir="rtl"] .f-sub{font-family:var(--ar);font-weight:200}
+
+/* ---------- the open answer ---------- */
+.area-wrap{width:100%;display:flex;flex-direction:column;align-items:center}
+.f-tag{
+  align-self:flex-start;margin-bottom:.5rem;
+  font-size:var(--fs-label);letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(205,167,136,.8);
+}
+[dir="rtl"] .f-tag{align-self:flex-end;font-family:var(--ar);letter-spacing:0;text-transform:none}
+.f-area{
+  width:100%;resize:vertical;min-height:6.2rem;
+  background:rgba(246,237,231,.025);
+  border:1px solid rgba(246,237,231,.14);border-radius:2px;
+  color:var(--ivory);font-family:inherit;
+  font-size:clamp(.94rem,3.4vw,1.04rem);line-height:1.7;letter-spacing:.02em;
+  padding:.8rem .9rem;
+  transition:border-color .6s ease,background-color .6s ease;
+}
+[dir="rtl"] .f-area{font-family:var(--ar);font-weight:200}
+.f-area::placeholder{color:rgba(246,237,231,.2)}
+.f-area:focus{outline:none;border-color:rgba(236,198,129,.5);background:rgba(246,237,231,.04)}
+
+/* ---------- the release ---------- */
+.consent{width:100%;display:flex;flex-direction:column;align-items:stretch}
+.tick{
+  display:flex;align-items:flex-start;gap:.75rem;
+  cursor:pointer;padding:.55rem .1rem;min-height:44px;
+  text-align:left;
+}
+[dir="rtl"] .tick{text-align:right}
+.tick input{position:absolute;opacity:0;width:0;height:0}
+.tick-box{
+  flex:0 0 auto;width:19px;height:19px;margin-top:.12rem;
+  border:1px solid rgba(246,237,231,.34);border-radius:2px;
+  display:grid;place-items:center;
+  transition:border-color .4s ease,background-color .4s ease;
+}
+.tick-box svg{width:12px;height:12px;overflow:visible}
+.tick-box path{
+  fill:none;stroke:var(--night-0);stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:16;stroke-dashoffset:16;
+  transition:stroke-dashoffset .34s var(--ease);
+}
+.tick:hover .tick-box{border-color:rgba(236,198,129,.6)}
+.tick input:focus-visible+.tick-box{outline:1px solid rgba(236,198,129,.6);outline-offset:3px}
+.tick input:checked+.tick-box{background:var(--star);border-color:var(--star)}
+.tick input:checked+.tick-box path{stroke-dashoffset:0}
+.tick-text{
+  font-size:var(--fs-detail);line-height:1.6;
+  color:rgba(246,237,231,.86);letter-spacing:.02em;
+}
+[dir="rtl"] .tick-text{font-family:var(--ar);font-weight:200}
+
+.learn{
+  align-self:flex-start;margin:.5rem 0 0 calc(19px + .75rem);
+  background:none;border:0;cursor:pointer;padding:.5rem 0;min-height:44px;
+  font-family:var(--lat);font-size:var(--fs-label);
+  letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(205,167,136,.9);
+  border-bottom:1px solid rgba(205,167,136,.3);
+  transition:color .4s ease,border-color .4s ease;
+}
+[dir="rtl"] .learn{align-self:flex-end;margin:.5rem calc(19px + .75rem) 0 0;
+  font-family:var(--ar);letter-spacing:0;text-transform:none;font-size:var(--fs-detail)}
+.learn:hover,.learn:focus-visible{color:var(--ivory);border-color:rgba(236,198,129,.7);outline:none}
+
+.terms{
+  max-height:0;overflow:hidden;
+  transition:max-height .6s var(--ease-soft),opacity .45s ease,margin .6s var(--ease-soft);
+  opacity:0;margin-top:0;
+}
+.terms.open{max-height:min(46svh,22rem);opacity:1;margin-top:1rem}
+.terms-body{
+  max-height:min(46svh,22rem);overflow-y:auto;-webkit-overflow-scrolling:touch;
+  margin:0;padding:1rem 1.05rem;
+  background:rgba(246,237,231,.035);
+  border:1px solid rgba(246,237,231,.12);border-radius:2px;
+  font-family:inherit;white-space:pre-wrap;
+  font-size:calc(var(--fs-detail) * .96);line-height:1.75;
+  color:rgba(246,237,231,.8);letter-spacing:.01em;
+  /* terms are read, not admired — ragged right, never centred */
+  text-align:left;
+}
+[dir="rtl"] .terms-body{font-family:var(--ar);font-weight:200;text-align:right}
+
+.field.enter .f-sub,
+.field.enter .area-wrap,
+.field.enter .consent{animation:stepIn .7s var(--ease) both;animation-delay:.09s}
 
 .f-err{
   min-height:1.3rem;margin-top:.85rem;
@@ -366,12 +503,16 @@ body{
   position:fixed;z-index:6;
   bottom:max(1.5rem,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
   background:none;border:0;cursor:pointer;
-  color:rgba(246,237,231,.46);
+  color:rgba(246,237,231,.6);
   font-family:var(--lat);
   font-size:.63rem;letter-spacing:.3em;text-transform:uppercase;
   padding:.95rem 1.2rem;min-height:44px;
   opacity:0;transition:opacity 1s ease,color .4s ease;
+  /* Faded out it is still a fixed element over the bottom centre of every
+     screen — without this it silently swallows taps meant for Continue. */
+  pointer-events:none;
 }
+.skip.in{pointer-events:auto}
 .skip.in{opacity:1}
 .skip:hover,.skip:focus-visible{color:rgba(246,237,231,.72);outline:none}
 
@@ -388,6 +529,10 @@ body{
     animation-duration:.01ms!important;animation-iteration-count:1!important;
     transition-duration:.01ms!important;
   }
+  /* no bloom and no ascent — the words simply arrive and the constellation stays put */
+  .w{text-shadow:none!important}
+  .sk-spark{display:none}
+  .progress.ascend{transform:none;opacity:1}
 }
 </style>
 
@@ -445,9 +590,30 @@ body{
 
       <form class="field" id="form" novalidate>
         <label class="f-label" id="fLabel" for="fInput"></label>
+        <p class="f-sub" id="fSub" hidden></p>
 
         <input class="f-input" id="fInput" type="text" autocomplete="name"
                autocapitalize="words" spellcheck="false" />
+
+        <div class="area-wrap" id="fAreaWrap" hidden>
+          <span class="f-tag" id="fTag"></span>
+          <textarea class="f-area" id="fArea" rows="4" spellcheck="true"></textarea>
+        </div>
+
+        <div class="consent" id="fConsent" hidden>
+          <label class="tick" id="fTickRow">
+            <input type="checkbox" id="fTick" />
+            <span class="tick-box" aria-hidden="true">
+              <svg viewBox="0 0 14 14"><path d="M2.4 7.4l3 3 6.2-7"/></svg>
+            </span>
+            <span class="tick-text" id="fTickText"></span>
+          </label>
+          <button type="button" class="learn" id="fLearn" aria-expanded="false"
+                  aria-controls="fTerms"></button>
+          <div class="terms" id="fTerms" role="region" aria-label="Filming and photography release">
+            <pre class="terms-body" id="fTermsBody"></pre>
+          </div>
+        </div>
 
         <div class="choices" id="fChoices" hidden></div>
 
@@ -479,6 +645,30 @@ body{
 (function () {
 'use strict';
 
+/* ══════════════════════════ the release ══════════════════════════
+   The signed talent licence (SMDART/JSCOR Rev.00), set for the page: the
+   signature block and its blank name/ID fields are replaced by the tick, and
+   the guest is identified by the details given on the earlier steps. The
+   substantive clauses are the document's own wording, unchanged. If legal
+   revise the document, paste the new clauses here and bump WAIVER_VERSION —
+   that string is stored with every reply, so which wording a guest agreed to
+   is always provable. */
+const WAIVER_VERSION = 'SMDART-JSCOR-Rev.00';
+const WAIVER_TEXT = [
+  "PHOTO & VIDEO RELEASE / LICENSE AGREEMENT",
+  "This release is between Jayasom Pte Ltd (the “Company”) and you (the “Participant”). Ticking the box below records your agreement in place of a signature, and the name, mobile number and email you gave on the previous steps identify you as the Participant. The date and time of your agreement are recorded with your reply.",
+  "1) Purpose\nThe Participant agrees to participate in a Company photo and/or video shoot for use in Company communications and marketing materials.",
+  "2) Grant of Rights (License)\nThe Participant grants the Company a worldwide, royalty-free, irrevocable, perpetual license to:\n· use, reproduce, publish, display, distribute, and share\n· edit, crop, retouch, combine, and adapt\n· create derivative works from\nany photographs, video, audio recordings, or other media featuring the Participant taken or produced as part of the shoot (“Content”).",
+  "3) Where the Company May Use the Content\nThe Company may use the Content in any media, including but not limited to:\n· Company websites, intranet, and online platforms\n· social media channels\n· marketing materials, brochures, posters, banners\n· presentations and proposals\n· press releases, PR features, employer branding, recruitment materials\n· internal communications, staff campaigns, newsletters",
+  "4) Duration\nThis license is granted for as long as the Company wishes to use the Content, with no time limitation.",
+  "5) No Compensation\nThe Participant acknowledges that participation is voluntary and that no payment or additional compensation is required for granting this license, unless otherwise agreed in writing.",
+  "6) Ownership\nAll Content created during the shoot will be the exclusive property of the Company.",
+  "7) No Obligation to Use\nThe Company is not required to use the Content and may stop using it at its discretion.",
+  "8) Respectful Use\nThe Company agrees to use the Content in a professional and respectful manner and not in a way that is intentionally misleading, defamatory, or harmful to the Participant.",
+  "9) Withdrawal\nThe Participant understands that once Content has been published or distributed, it may not be possible to fully retract it. However, the Participant may submit a written request to the Director of Marketing, PR and Communication if they wish the Company to stop using the Content in future materials. The Company will consider the request in good faith, but removal may not be possible in all cases (e.g. printed materials already produced, published press articles, archived content).",
+  "10) Confirmation\nThe Participant confirms that:\n· they are at least 18 years old;\n· they have read and understood this Agreement;\n· they consent to the use of their likeness as described above."
+].join('\n\n');
+
 /* ══════════════════════════ copy ══════════════════════════ */
 const COPY = {
   en: {
@@ -497,12 +687,24 @@ const COPY = {
       { label: 'Mobile number',  type: 'tel',   ac: 'tel',   im: 'tel',   cap: 'off'   },
       { label: 'Email address',  type: 'email', ac: 'email', im: 'email', cap: 'off'   },
       { label: 'Will you join us?', type: 'choice',
-        options: [{ v: 'yes', t: 'Yes, I will be there' }, { v: 'no', t: 'I cannot attend' }] }
+        options: [{ v: 'yes', t: 'Yes, I will be there' }, { v: 'no', t: 'I cannot attend' }] },
+      { label: 'Is there anything we should know before welcoming you?',
+        sub: 'Dietary requirements, allergies or accessibility needs. You may leave this blank.',
+        type: 'area', tag: 'Optional', optional: true, big: true },
+      { label: 'Before you arrive',
+        sub: 'The evening will be photographed and filmed.',
+        type: 'consent',
+        /* Clause 10 asks the Participant to confirm they are 18 or over as well
+           as that they have read it, so the tick has to say both. */
+        tick: 'I am 18 or over, and I have read and agree to the photo and video release.',
+        more: 'Learn more', less: 'Close', big: true,
+        terms: WAIVER_TEXT }
     ],
     next: 'Continue', back: 'Back',
     err: { name: 'Please enter your name',
            tel: 'Please enter a valid mobile number',
-           email: 'Please enter a valid email address' },
+           email: 'Please enter a valid email address',
+           consent: 'Please agree to the release to continue' },
     doneA: 'Your Place Is Written',
     doneB: 'موعدك مكتوبٌ بين النجوم',
     doneVerse: 'We will see you under this sky, on the thirteenth of September.',
@@ -527,12 +729,22 @@ const COPY = {
       { label: 'رقم الجوال',           type: 'tel',   ac: 'tel',   im: 'tel',   cap: 'off'   },
       { label: 'البريد الإلكتروني',    type: 'email', ac: 'email', im: 'email', cap: 'off'   },
       { label: 'هل ستكون معنا؟', type: 'choice',
-        options: [{ v: 'yes', t: 'نعم، سأكون هناك' }, { v: 'no', t: 'لن أتمكن من الحضور' }] }
+        options: [{ v: 'yes', t: 'نعم، سأكون هناك' }, { v: 'no', t: 'لن أتمكن من الحضور' }] },
+      { label: 'هل من شيءٍ ينبغي أن نعرفه قبل استقبالك؟',
+        sub: 'متطلبات غذائية أو حساسية أو احتياجات وصول. يمكنك ترك الحقل فارغًا.',
+        type: 'area', tag: 'اختياري', optional: true, big: true },
+      { label: 'قبل وصولك',
+        sub: 'سيتم تصوير الأمسية فوتوغرافيًا ومرئيًا.',
+        type: 'consent',
+        tick: 'عمري ١٨ عامًا فأكثر، وقد اطّلعت على إذن التصوير الفوتوغرافي والمرئي وأوافق عليه.',
+        more: 'اقرأ المزيد', less: 'إغلاق', big: true,
+        terms: WAIVER_TEXT }
     ],
     next: 'متابعة', back: 'رجوع',
     err: { name: 'الرجاء إدخال الاسم',
            tel: 'الرجاء إدخال رقم جوال صحيح',
-           email: 'الرجاء إدخال بريد إلكتروني صحيح' },
+           email: 'الرجاء إدخال بريد إلكتروني صحيح',
+           consent: 'الرجاء الموافقة على إذن التصوير للمتابعة' },
     doneA: 'موعدك مكتوبٌ بين النجوم',
     doneB: 'Your Place Is Written',
     doneVerse: 'نلقاك تحت هذه السماء، في الثالث عشر من سبتمبر.',
@@ -552,7 +764,9 @@ const COPY = {
                  form services expect, and it sidesteps cross-origin blocking.
    mode 'json' — JSON POST via fetch. For your own API, which must allow CORS.
 
-   Currently: Jotform "Jayasom AMAALA — Opening RSVP" (form 262356522129052).
+   Currently: Jotform "Jayasom AMAALA — Opening RSVP" (form 262356877606065).
+   NOTE: `notes` (dietary) and `waiver`/`waiverVersion` still need fields adding
+   on the Jotform form and mapping below, or they are silently dropped.
    ══════════════════════════════════════════════════════════ */
 const RSVP = {
   endpoint: 'https://submit.jotform.com/submit/262356877606065',
@@ -577,8 +791,11 @@ const RSVP = {
 
 const LETTERS = [{"id":"J","pts":[[48,25.4],[48,60],[47,72],[39,82.4],[30.5,78]],"seg":[[0,1],[1,2],[2,3],[3,4]]},{"id":"A1","pts":[[93.2,25.4],[81.3,69],[69.5,85.4],[105.1,69],[117,85.4]],"seg":[[0,1],[1,2],[0,3],[3,4],[1,3]]},{"id":"Y","pts":[[125.5,25.4],[165.7,25.4],[145.6,56],[145.6,85.4]],"seg":[[0,2],[1,2],[2,3]]},{"id":"A2","pts":[[197.9,25.4],[186,69],[174.1,85.4],[209.8,69],[221.6,85.4]],"seg":[[0,1],[1,2],[0,3],[3,4],[1,3]]},{"id":"S","pts":[[267.5,33.5],[250,26.8],[236.8,41],[252,55],[269,68.5],[252,84],[236.5,75.5]],"seg":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]]},{"id":"O","pts":[[317.51,28.24],[337.24,36.21],[345.41,55.44],[337.24,74.67],[317.51,82.64],[297.78,74.67],[289.61,55.44],[297.78,36.21]],"seg":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0]]},{"id":"M","pts":[[361.5,85.4],[375.5,25.4],[391.5,85.4],[407.5,25.4],[421.5,85.4]],"seg":[[0,1],[1,2],[2,3],[3,4]]}];
 const EVENT_AT = new Date('2026-09-13T17:30:00+03:00');
-const PERSONAL = [[26, 52], [80, 24], [128, 60], [178, 28]];
-const PLINKS = [[0, 1], [1, 2], [2, 3]];
+/* Six stars now — the four RSVP answers, then what we should know, then the
+   release. Spread across the 204×84 viewBox so the chain still reads as a
+   constellation rather than a progress bar. */
+const PERSONAL = [[20, 54], [58, 26], [96, 58], [128, 30], [162, 56], [190, 26]];
+const PLINKS = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]];
 
 const $ = (id) => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
@@ -603,23 +820,34 @@ const REACH = fine ? 86 : 116;      /* radius of the glow itself */
 const NEAR2 = fine ? 24000 : 42000; /* how far it looks for a star to reach */
 const NEARD = fine ? 155 : 205;     /* distance at which a thread fades out */
 
+/* Stars are seeded in a disc that reaches the corners rather than a rectangle,
+   because the sky turns — a rectangle would swing its empty corners into view. */
 function seedStars() {
-  const area = W * H;
-  const n = Math.min(520, Math.max(180, Math.round(area / 2900)));
+  const R = Math.hypot(W, H) / 2;
+  const n = Math.min(560, Math.max(200, Math.round((Math.PI * R * R) / 3400)));
   stars = [];
-  for (let i = 0; i < n; i++) {
-    const depth = Math.random();
-    stars.push({
-      x: Math.random(), y: Math.random(),
-      r: (0.34 + Math.random() * 1.05) * (0.55 + depth * 0.9),
-      a: 0.16 + Math.random() * 0.6,
-      ph: Math.random() * Math.PI * 2,
-      sp: 0.16 + Math.random() * 0.5,
-      p: 0.1 + depth * 0.6,
-      warm: Math.random() < 0.24
-    });
-  }
+  for (let i = 0; i < n; i++) stars.push(makeStar(R * Math.sqrt(Math.random()),
+                                                 Math.random() * Math.PI * 2));
 }
+
+function makeStar(rad, ang) {
+  const depth = Math.random();
+  return {
+    rad: rad, ang: ang,
+    r: (0.34 + Math.random() * 1.05) * (0.55 + depth * 0.9),
+    a: 0.16 + Math.random() * 0.6,
+    ph: Math.random() * Math.PI * 2,
+    sp: 0.16 + Math.random() * 0.5,
+    p: 0.1 + depth * 0.6,
+    warm: Math.random() < 0.24
+  };
+}
+
+/* The sky turns about two degrees a minute — below the threshold of noticing,
+   above the threshold of feeling. */
+const SPIN = 0.00055;
+let warp = 0;      /* the push-through between stages, decaying each frame */
+const risers = []; /* answered stars on their way up to join the field */
 
 function sizeCanvas() {
   DPR = Math.min(devicePixelRatio || 1, 2);
@@ -659,14 +887,34 @@ function frame(now) {
   const px = ptr.active ? (ptr.x / W - 0.5) : 0;
   const py = ptr.active ? (ptr.y / H - 0.5) : 0;
 
+  if (warp > 0.002) warp *= 0.955; else warp = 0;
+
+  const HX = W / 2, HY = H / 2;
+  const spin = reduce ? 0 : t * SPIN;
+
   const near = [];
   for (let i = 0; i < stars.length; i++) {
     const s = stars[i];
     const ox = (px * -26 + tilt.x * 30) * s.p;
     const oy = (py * -18 + tilt.y * 24) * s.p;
-    const x = s.x * W + ox, y = s.y * H + oy;
+    const ang = s.ang + spin;
+    const ca = Math.cos(ang), sa = Math.sin(ang);
+    /* Nearer stars are thrown outward hardest by the push-through, which is
+       what makes it read as travelling rather than zooming. */
+    const rr = s.rad * (1 + warp * 1.45 * s.p);
+    const x = HX + ca * rr + ox, y = HY + sa * rr + oy;
     const tw = reduce ? 1 : 0.72 + 0.28 * Math.sin(t * s.sp + s.ph);
     const a = s.a * tw;
+
+    if (warp > 0.05 && !reduce && s.r > 0.68) {
+      const len = warp * s.p * 52;
+      cx.strokeStyle = 'rgba(246,240,236,' + (a * 0.45).toFixed(3) + ')';
+      cx.lineWidth = s.r * 0.85;
+      cx.beginPath();
+      cx.moveTo(x - ca * len, y - sa * len);
+      cx.lineTo(x, y);
+      cx.stroke();
+    }
 
     cx.beginPath();
     cx.arc(x, y, s.r, 0, 6.2832);
@@ -708,6 +956,34 @@ function frame(now) {
     }
     cx.beginPath(); cx.arc(ptr.x, ptr.y, 1.5, 0, 6.2832);
     cx.fillStyle = 'rgba(255,252,247,' + (0.72 * k).toFixed(3) + ')'; cx.fill();
+  }
+
+  /* the guest's own stars, rising to take their place in the sky */
+  for (let i = risers.length - 1; i >= 0; i--) {
+    const s = risers[i];
+    if (s.wait > 0) { s.wait -= 16; continue; }
+    s.x += s.vx; s.y += s.vy; s.vy *= 0.995;
+    s.life -= 0.0042;
+
+    if (s.life <= 0) {
+      /* it stops being an animation and becomes part of the field */
+      const st = makeStar(Math.hypot(s.x - HX, s.y - HY), Math.atan2(s.y - HY, s.x - HX) - spin);
+      st.r = 1.15; st.a = 0.72; st.warm = true;
+      stars.push(st);
+      risers.splice(i, 1);
+      continue;
+    }
+
+    /* A tight halo reads as a star; a wide one reads as a lens blur. */
+    const fade = Math.min(1, s.life * 1.8);
+    const g = cx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 12);
+    g.addColorStop(0, 'rgba(255,250,240,' + (0.3 * fade).toFixed(3) + ')');
+    g.addColorStop(0.45, 'rgba(236,198,129,' + (0.09 * fade).toFixed(3) + ')');
+    g.addColorStop(1, 'rgba(236,198,129,0)');
+    cx.fillStyle = g;
+    cx.beginPath(); cx.arc(s.x, s.y, 12, 0, 6.2832); cx.fill();
+    cx.beginPath(); cx.arc(s.x, s.y, s.r, 0, 6.2832);
+    cx.fillStyle = 'rgba(255,252,246,' + fade.toFixed(3) + ')'; cx.fill();
   }
 
   /* shooting stars */
@@ -775,7 +1051,7 @@ const groups = [];
 function buildSkeleton() {
   LETTERS.forEach((L) => {
     const g = document.createElementNS(NS, 'g');
-    const lines = [], nodes = [];
+    const lines = [], nodes = [], sparks = [];
 
     L.seg.forEach(([a, b]) => {
       const p1 = L.pts[a], p2 = L.pts[b];
@@ -786,6 +1062,16 @@ function buildSkeleton() {
       const len = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
       ln.style.setProperty('--len', len.toFixed(2));
       g.appendChild(ln); lines.push(ln);
+
+      /* A bright point runs the segment and leaves the hairline behind it, so
+         the wordmark reads as inscribed rather than wiped in. */
+      const sp = document.createElementNS(NS, 'line');
+      sp.setAttribute('class', 'sk-spark');
+      sp.setAttribute('x1', p1[0]); sp.setAttribute('y1', p1[1]);
+      sp.setAttribute('x2', p2[0]); sp.setAttribute('y2', p2[1]);
+      sp.style.strokeDasharray = '3.5 ' + (len + 6).toFixed(2);
+      sp.style.strokeDashoffset = (len + 6).toFixed(2);
+      g.appendChild(sp); sparks.push(sp);
     });
 
     L.pts.forEach((p) => {
@@ -802,7 +1088,7 @@ function buildSkeleton() {
     });
 
     skel.appendChild(g);
-    groups.push({ lines, nodes });
+    groups.push({ lines, nodes, sparks });
   });
 }
 
@@ -957,6 +1243,11 @@ function playIntro() {
   groups.forEach((g, i) => {
     g.nodes.forEach((n, k) => later(() => n.classList.add('lit'), at + k * 62));
     g.lines.forEach((l, k) => later(() => l.classList.add('drawn'), at + 330 + k * 70));
+    g.sparks.forEach((s, k) => {
+      const t0 = at + 330 + k * 70;
+      later(() => s.classList.add('run'), t0);
+      later(() => s.classList.add('spent'), t0 + 690);
+    });
     at += Math.max(880 - i * 62, 480);
   });
 
@@ -971,6 +1262,8 @@ function goStage(name) {
   const map = { invite: 'stInvite', form: 'stForm', done: 'stDone' };
   const from = $(map[stage]), to = $(map[name]);
   if (from === to) return;
+  /* the sky travels between stages rather than dissolving */
+  if (!reduce) warp = 1;
   from.classList.add('out'); from.classList.remove('on');
   later(() => from.classList.remove('out'), 900);
   later(() => {
@@ -981,11 +1274,13 @@ function goStage(name) {
 }
 
 /* ══════════════════════════ the form ══════════════════════════ */
-const answers = { name: '', mobile: '', email: '', attending: null };
-const KEYS = ['name', 'mobile', 'email', 'attending'];
+const answers = { name: '', mobile: '', email: '', attending: null, notes: '', waiver: false };
+const KEYS = ['name', 'mobile', 'email', 'attending', 'notes', 'waiver'];
 let step = 0;
 
 const input = $('fInput'), choicesEl = $('fChoices'), errEl = $('fErr');
+const areaWrap = $('fAreaWrap'), area = $('fArea'), consentEl = $('fConsent');
+const tick = $('fTick'), learnBtn = $('fLearn'), termsEl = $('fTerms');
 
 function stepDef() { return COPY[lang].steps[step]; }
 
@@ -996,25 +1291,60 @@ function paintStep() {
   $('fBack').hidden = step === 0;
   $('fBack').textContent = c.back;
 
+  $('fLabel').classList.toggle('big', !!s.big);
+  $('fSub').textContent = s.sub || '';
+  $('fSub').hidden = !s.sub;
+
+  /* keep the label pointing at whatever this step actually asks for */
+  const forId = s.type === 'area' ? 'fArea' : s.type === 'consent' ? 'fTick'
+              : s.type === 'choice' ? '' : 'fInput';
+  if (forId) $('fLabel').setAttribute('for', forId);
+  else $('fLabel').removeAttribute('for');
+
   document.querySelector('.f-nav').classList.toggle('solo', s.type === 'choice');
 
   const field = $('form');
+  field.classList.toggle('wide', s.type === 'area' || s.type === 'consent');
   field.classList.remove('enter');
   void field.offsetWidth;
   field.classList.add('enter');
 
+  /* every step starts from the same clean slate, then turns on what it needs */
+  input.hidden = true; choicesEl.hidden = true;
+  areaWrap.hidden = true; consentEl.hidden = true;
+  $('fNext').hidden = false; $('fNext').textContent = c.next;
+
   if (s.type === 'choice') {
-    input.hidden = true; choicesEl.hidden = false; $('fNext').hidden = true;
+    choicesEl.hidden = false; $('fNext').hidden = true;
     choicesEl.textContent = '';
     s.options.forEach((o) => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'choice'; b.textContent = o.t;
-      b.addEventListener('click', () => { answers.attending = o.v; ignite(3); later(submit, 620); });
+      b.addEventListener('click', () => {
+        answers.attending = o.v;
+        ignite(3);
+        /* Declining ends the journey here — a filming release and dietary
+           notes are moot for someone who is not coming. */
+        if (o.v === 'yes') later(() => { step++; paintStep(); focusStep(); }, 460);
+        else later(submit, 620);
+      });
       choicesEl.appendChild(b);
     });
+
+  } else if (s.type === 'area') {
+    areaWrap.hidden = false;
+    $('fTag').textContent = s.tag || '';
+    area.value = answers.notes || '';
+
+  } else if (s.type === 'consent') {
+    consentEl.hidden = false;
+    $('fTickText').textContent = s.tick;
+    $('fTermsBody').textContent = s.terms;
+    learnBtn.textContent = termsEl.classList.contains('open') ? s.less : s.more;
+    tick.checked = !!answers.waiver;
+
   } else {
-    input.hidden = false; choicesEl.hidden = true; $('fNext').hidden = false;
-    $('fNext').textContent = c.next;
+    input.hidden = false;
     input.type = s.type; input.setAttribute('autocomplete', s.ac);
     input.setAttribute('inputmode', s.im); input.setAttribute('autocapitalize', s.cap);
     input.value = answers[KEYS[step]] || '';
@@ -1022,8 +1352,25 @@ function paintStep() {
 }
 
 function focusStep() {
-  if (stepDef().type !== 'choice') later(() => input.focus({ preventScroll: true }), 420);
+  const t = stepDef().type;
+  if (t === 'choice' || t === 'consent') return;
+  const el = t === 'area' ? area : input;
+  later(() => el.focus({ preventScroll: true }), 420);
 }
+
+/* The terms open in place — the guest never leaves the sky to read them, and
+   the text is provably on screen at the moment they agree. */
+learnBtn.addEventListener('click', () => {
+  const open = termsEl.classList.toggle('open');
+  learnBtn.setAttribute('aria-expanded', String(open));
+  learnBtn.textContent = open ? stepDef().less : stepDef().more;
+  if (open) later(() => $('fTermsBody').scrollTop = 0, 60);
+});
+
+tick.addEventListener('change', () => {
+  answers.waiver = tick.checked;
+  if (tick.checked) errEl.classList.remove('show');
+});
 
 /* Each answered field lights its star and reaches a line back to the last one,
    so the guest watches their own constellation form as they fill the form. */
@@ -1041,15 +1388,29 @@ function validate() {
   if (step === 0) { if (v.length < 2) return c.err.name; }
   if (step === 1) { if ((v.match(/\d/g) || []).length < 7) return c.err.tel; }
   if (step === 2) { if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return c.err.email; }
+  if (stepDef().type === 'consent' && !tick.checked) return c.err.consent;
   return null;
 }
 
 $('form').addEventListener('submit', (e) => {
   e.preventDefault();
+  const s = stepDef();
   const bad = validate();
-  if (bad) { errEl.textContent = bad; errEl.classList.add('show'); input.focus(); return; }
-  answers[KEYS[step]] = input.value.trim();
+  if (bad) {
+    errEl.textContent = bad; errEl.classList.add('show');
+    (s.type === 'consent' ? tick : input).focus();
+    return;
+  }
+
+  if (s.type === 'area') answers.notes = area.value.trim();
+  else if (s.type === 'consent') answers.waiver = true;
+  else answers[KEYS[step]] = input.value.trim();
+
   ignite(step);
+
+  /* The release is the last star — lighting it completes the constellation. */
+  if (s.type === 'consent') { later(submit, 640); return; }
+
   step++; paintStep(); focusStep();
 });
 
@@ -1067,6 +1428,10 @@ function submit() {
     mobile: answers.mobile,
     email: answers.email,
     attending: answers.attending,
+    notes: answers.notes,
+    /* Recorded together so it is always provable which wording was agreed to. */
+    waiver: answers.waiver ? 'Agreed' : 'Not agreed',
+    waiverVersion: answers.waiver ? WAIVER_VERSION : '',
     language: lang,
     submittedAt: new Date().toISOString()
   };
@@ -1078,6 +1443,27 @@ function submit() {
   $('doneVerse').textContent = coming ? c.doneVerse : c.noVerse;
   $('calBtn').textContent = c.cal;
   $('calBtn').hidden = !coming;
+
+  /* The constellation they built flares, lifts off the page, and takes its
+     place overhead — the answers become a star. */
+  const svg = $('progress');
+  if (!reduce) {
+    const box = svg.getBoundingClientRect();
+    svg.classList.add('flare');
+    later(() => {
+      PERSONAL.forEach((p, i) => {
+        risers.push({
+          x: box.left + (p[0] / 204) * box.width,
+          y: box.top + (p[1] / 84) * box.height,
+          vx: (Math.random() - 0.5) * 0.9,
+          vy: -(0.5 + Math.random() * 0.38),
+          r: 1.5 + Math.random() * 0.8,
+          life: 1, wait: i * 95
+        });
+      });
+      svg.classList.add('ascend');
+    }, 540);
+  }
 
   fin.nodes.forEach((n) => n.classList.add('lit'));
   goStage('done');
@@ -1231,9 +1617,20 @@ addEventListener('keydown', (e) => {
 addEventListener('wheel', () => { if (!revealDone) finishIntro(); }, { passive: true, once: true });
 
 /* ══════════════════════════ start ══════════════════════════ */
+/* One crosses now and then while a guest is reading, not only on "Begin".
+   Deliberately a plain setTimeout so clearing the intro timers cannot stop it. */
+function idleShooters() {
+  if (reduce) return;
+  setTimeout(() => {
+    if (!document.hidden && stage === 'invite') spawnShooter();
+    idleShooters();
+  }, 17000 + Math.random() * 25000);
+}
+
 sizeCanvas();
 requestAnimationFrame(frame);
 buildSkeleton();
+idleShooters();
 applyLang();
 paintStep();
 tickCountdown();
